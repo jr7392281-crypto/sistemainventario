@@ -1,0 +1,118 @@
+<?php
+include('app/config.php');
+include('layout/sesion.php');
+include('layout/parte1.php');
+include('app/controllers/equipos/listado_de_equipos.php');
+include('app/controllers/impresoras/listado_impresoras.php');
+include('app/controllers/mantenimiento/listado_mantenimientos.php');
+?>
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <div class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-12">
+          <h1 class="m-0">Bienvenida al SISTEMA DE INVENTARIO Y MANTENIMIENTO -
+            <?php echo isset($nombres_sesion) ? $nombres_sesion : 'Usuario'; ?>
+          </h1>
+        </div><!-- /.col -->
+      </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+  </div>
+  <!-- /.content-header -->
+  <!-- Main content -->
+  <div class="content">
+    <div class="container-fluid">
+      CONTENIDO DEL SISTEMA
+      <br><br>
+
+      <div class="row">
+        <div class="col-lg-3 col-6">
+          <!-- small card -->
+          <div class="small-box bg-warning">
+            <div class="inner">
+              <?php
+              $contador_de_equipos = 0;
+              foreach ($equipos_datos as $equipos_dato) {
+                $contador_de_equipos = $contador_de_equipos + 1;
+              }
+              ?>
+              <H3><?php echo $contador_de_equipos ?></H3>
+              <p>Equipos Registrados</p>
+            </div>
+            <?php if ($rol_sesion === 'administrador') { ?>
+            <a href="<?php echo $URL; ?>/equipos/create.php">
+              <div class="icon">
+                <i class="fas fa-laptop"></i>
+              </div>
+            </a>
+            <?php } ?>
+            <a href="<?php echo $URL; ?>/equipos" class="small-box-footer">
+              Mas detalles <i class="fas fa-arrow-circle-right"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-6">
+          <!-- small card -->
+          <div class="small-box bg-info">
+            <div class="inner">
+              <?php
+              $contador_de_impresoras = 0;
+              foreach ($impresoras_datos as $impresoras_dato) {
+                $contador_de_impresoras = $contador_de_impresoras + 1;
+              }
+              ?>
+              <H3>
+                <?php echo $contador_de_impresoras ?>
+              </H3>
+              <p>Impresoras Registradas</p>
+            </div>
+            <?php if ($rol_sesion === 'administrador') { ?>
+            <a href="<?php echo $URL; ?>/impresoras/create.php">
+              <div class="icon">
+                <i class="fas fa-print"></i>
+              </div>
+            </a>
+            <?php } ?>
+            <a href="<?php echo $URL; ?>/impresoras" class="small-box-footer">
+              Mas detalles <i class="fas fa-arrow-circle-right"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-6">
+          <!-- small card -->
+          <div class="small-box bg-info">
+            <div class="inner">
+              <?php
+              $contador_de_mantenimientos = 0;
+              foreach ($mantenimientos_datos as $mantenimientos_dato) {
+                $contador_de_mantenimientos = $contador_de_mantenimientos + 1;
+              }
+              ?>
+              <H3>
+                <?php echo $contador_de_mantenimientos ?>
+              </H3>
+              <p>Mantenimientos Registrados</p>
+            </div>
+            <a href="<?php echo $URL; ?>/mantenimiento/create.php">
+              <div class="icon">
+                <i class="fas fa-wrench"></i>
+              </div>
+            </a>
+            <a href="<?php echo $URL; ?>/mantenimiento/" class="small-box-footer">
+              Mas detalles <i class="fas fa-arrow-circle-right"></i>
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+    </div><!-- /.container-fluid -->
+  </div>
+  <!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
+<?php include('layout/parte2.php'); ?>

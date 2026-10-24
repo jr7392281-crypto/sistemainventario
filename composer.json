@@ -1,0 +1,9 @@
+{
+    "require": {
+        "phpmailer/phpmailer": "^7.1"
+    },
+    "name": "sis-inv/sistema-inventario",
+    "description": "Sistema de inventario y mantenimiento",
+    "type": "project",
+    "license": ["proprietary"]
+}
