@@ -72,9 +72,10 @@ include('../app/controllers/areas/listado_de_areas.php');
                       <label for="id_area">Área de Usuario</label>
                       <select name="id_area" id="id_area" class="form-control" required>
                         <?php foreach ($areas_datos as $areas_dato) {
+                          $area_tabla = $areas_dato['nombre'];
                           $id_area = $areas_dato['id_area']; ?>
-                          <option value="<?php echo $id_area; ?>" <?php if ( $id_area_actual === $id_area) { ?>selected<?php } ?>>
-                            <?php echo htmlspecialchars($areas_dato['nombre'], ENT_QUOTES, 'UTF-8'); ?>
+                          <option value="<?php echo $id_area; ?>" <?php if ($id_area_actual === $id_area) { ?>selected<?php } ?>>
+                            <?php echo $area_tabla; ?>
                           </option>
                         <?php } ?>
                       </select>
