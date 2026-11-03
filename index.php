@@ -5,6 +5,11 @@ include('layout/parte1.php');
 include('app/controllers/equipos/listado_de_equipos.php');
 include('app/controllers/impresoras/listado_impresoras.php');
 include('app/controllers/mantenimiento/listado_mantenimientos.php');
+if ($rol_sesion === 'administrador') {
+  include('app/controllers/usuarios/listado_de_usuarios.php');
+  include('app/controllers/roles/listado_de_roles.php');
+  include('app/controllers/areas/listado_de_areas.php');
+}
 ?>
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
@@ -28,6 +33,59 @@ include('app/controllers/mantenimiento/listado_mantenimientos.php');
       <br><br>
 
       <div class="row">
+
+        <?php if ($rol_sesion === 'administrador') { ?>
+          <div class="col-lg-3 col-6">
+            <div class="small-box bg-warning">
+              <div class="inner">
+                <h3>
+                  <?php echo count($usuarios_datos); ?>
+                </h3>
+                <p>Usuarios Registrados</p>
+              </div>
+              <div class="icon">
+                <i class="fas fa-users"></i>
+              </div>
+              <a href="<?php echo $URL; ?>/usuarios/" class="small-box-footer">
+                Más detalles <i class="fas fa-arrow-circle-right"></i>
+              </a>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-6">
+            <div class="small-box bg-info">
+              <div class="inner">
+                <h3>
+                  <?php echo count($roles_datos); ?>
+                </h3>
+                <p>Roles Registrados</p>
+              </div>
+              <div class="icon">
+                <i class="fas fa-address-card"></i>
+              </div>
+              <a href="<?php echo $URL; ?>/roles/" class="small-box-footer">
+                Más detalles <i class="fas fa-arrow-circle-right"></i>
+              </a>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-6">
+            <div class="small-box bg-success">
+              <div class="inner">
+                <h3>
+                  <?php echo count($areas_datos); ?>
+                </h3>
+                <p>Áreas Registradas</p>
+              </div>
+              <div class="icon">
+                <i class="fas fa-map-marker-alt"></i>
+              </div>
+              <a href="<?php echo $URL; ?>/areas/" class="small-box-footer">
+                Más detalles <i class="fas fa-arrow-circle-right"></i>
+              </a>
+            </div>
+          </div>
+        <?php } ?>
         <div class="col-lg-3 col-6">
           <!-- small card -->
           <div class="small-box bg-warning">
@@ -99,7 +157,6 @@ include('app/controllers/mantenimiento/listado_mantenimientos.php');
             </a>
           </div>
         </div>
-
       </div>
 
     </div><!-- /.container-fluid -->
