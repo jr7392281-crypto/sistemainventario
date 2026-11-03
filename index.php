@@ -41,13 +41,9 @@ include('app/controllers/mantenimiento/listado_mantenimientos.php');
               <H3><?php echo $contador_de_equipos ?></H3>
               <p>Equipos Registrados</p>
             </div>
-            <?php if ($rol_sesion === 'administrador') { ?>
-            <a href="<?php echo $URL; ?>/equipos/create.php">
-              <div class="icon">
-                <i class="fas fa-laptop"></i>
-              </div>
-            </a>
-            <?php } ?>
+            <div class="icon">
+              <i class="fas fa-laptop"></i>
+            </div>
             <a href="<?php echo $URL; ?>/equipos" class="small-box-footer">
               Mas detalles <i class="fas fa-arrow-circle-right"></i>
             </a>
@@ -69,13 +65,9 @@ include('app/controllers/mantenimiento/listado_mantenimientos.php');
               </H3>
               <p>Impresoras Registradas</p>
             </div>
-            <?php if ($rol_sesion === 'administrador') { ?>
-            <a href="<?php echo $URL; ?>/impresoras/create.php">
-              <div class="icon">
-                <i class="fas fa-print"></i>
-              </div>
-            </a>
-            <?php } ?>
+            <div class="icon">
+              <i class="fas fa-print"></i>
+            </div>
             <a href="<?php echo $URL; ?>/impresoras" class="small-box-footer">
               Mas detalles <i class="fas fa-arrow-circle-right"></i>
             </a>
