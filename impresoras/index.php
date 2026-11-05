@@ -82,7 +82,7 @@ include('../app/controllers/impresoras/listado_impresoras.php');
                                                     <span class="dato-tabla"><?php echo $modelo; ?></span>
                                                 </td>
                                                 <td>
-                                                    <?php echo htmlspecialchars($impresora_dato['tipo_equipo'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
+                                                    <?php echo htmlspecialchars($impresora_dato['tipo_impresora'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
                                                     <span class="text-muted">-</span>
                                                     <?php echo htmlspecialchars($impresora_dato['tipo_impresion'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
                                                 </td>

@@ -19,7 +19,7 @@ foreach ($impresoras_datos as $impresora_dato) {
     $codigo = $impresora_dato['codigo'];
     $fabricante = $impresora_dato['fabricante'];
     $modelo = $impresora_dato['modelo'];
-    $tipo_equipo = $impresora_dato['tipo_equipo'];
+    $tipo_impresora = $impresora_dato['tipo_impresora'];
     $tipo_impresion = $impresora_dato['tipo_impresion'];
     $id_area = $impresora_dato['id_area'];
     $nombre_area = $impresora_dato['nombre_area'];

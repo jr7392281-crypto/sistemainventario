@@ -1,6 +1,6 @@
 <?php
 $sql = "SELECT i.id_impresora, i.codigo, i.fabricante, i.modelo,
-       i.tipo_equipo, i.tipo_impresion, a.nombre AS area,
+       i.tipo_impresora, i.tipo_impresion, a.nombre AS area,
        i.estado, i.observacion
 FROM tb_impresoras AS i
 INNER JOIN tb_areas AS a ON a.id_area = i.id_area

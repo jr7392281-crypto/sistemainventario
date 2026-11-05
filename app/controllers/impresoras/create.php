@@ -5,7 +5,7 @@ include('../../solo_administrador.php');
 $codigo = $_POST['codigo'];
 $fabricante = $_POST['fabricante'];
 $modelo = $_POST['modelo'];
-$tipo_equipo = $_POST['tipo_equipo'];
+$tipo_impresora = $_POST['tipo_impresora'];
 $tipo_impresion = $_POST['tipo_impresion'];
 $id_area = $_POST['id_area'];
 $estado = $_POST['estado'];
@@ -13,17 +13,17 @@ $observacion = $_POST['observacion'];
 
 $sentencia = $pdo->prepare(
     "INSERT INTO tb_impresoras
-        (codigo, fabricante, modelo, tipo_equipo, tipo_impresion,
+        (codigo, fabricante, modelo, tipo_impresora, tipo_impresion,
          id_area, estado, observacion)
      VALUES
-        (:codigo, :fabricante, :modelo, :tipo_equipo, :tipo_impresion,
+        (:codigo, :fabricante, :modelo, :tipo_impresora, :tipo_impresion,
          :id_area, :estado, :observacion)"
 );
 
 $sentencia->bindParam(':codigo', $codigo);
 $sentencia->bindParam(':fabricante', $fabricante);
 $sentencia->bindParam(':modelo', $modelo);
-$sentencia->bindParam(':tipo_equipo', $tipo_equipo);
+$sentencia->bindParam(':tipo_impresora', $tipo_impresora);
 $sentencia->bindParam(':tipo_impresion', $tipo_impresion);
 $sentencia->bindParam(':id_area', $id_area);
 $sentencia->bindParam(':estado', $estado);

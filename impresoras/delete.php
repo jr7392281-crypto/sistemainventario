@@ -64,8 +64,8 @@ include('../layout/parte1.php');
                                                     </div>
                                                     <div class="col-md-4">
                                                         <div class="form-group">
-                                                            <label>Tipo de equipo:</label>
-                                                            <input type="text" class="form-control" value="<?php echo $tipo_equipo; ?>" disabled>
+                                                            <label>Tipo de impresora:</label>
+                                                            <input type="text" class="form-control" value="<?php echo $tipo_impresora; ?>" disabled>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-4">

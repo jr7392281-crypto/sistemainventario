@@ -90,7 +90,7 @@ CREATE TABLE `tb_impresoras` (
   `codigo` varchar(50) NOT NULL,
   `fabricante` varchar(100) DEFAULT NULL,
   `modelo` varchar(100) DEFAULT NULL,
-  `tipo_equipo` varchar(100) DEFAULT NULL,
+  `tipo_impresora` varchar(100) DEFAULT NULL,
   `tipo_impresion` varchar(100) DEFAULT NULL,
   `id_area` int(11) NOT NULL,
   `estado` varchar(50) NOT NULL DEFAULT 'Operativa',
@@ -103,7 +103,7 @@ CREATE TABLE `tb_impresoras` (
 -- Volcado de datos para la tabla `tb_impresoras`
 --
 
-INSERT INTO `tb_impresoras` (`id_impresora`, `codigo`, `fabricante`, `modelo`, `tipo_equipo`, `tipo_impresion`, `id_area`, `estado`, `observacion`, `fecha_registro`, `fecha_actualizacion`) VALUES
+INSERT INTO `tb_impresoras` (`id_impresora`, `codigo`, `fabricante`, `modelo`, `tipo_impresora`, `tipo_impresion`, `id_area`, `estado`, `observacion`, `fecha_registro`, `fecha_actualizacion`) VALUES
 (6, 'Muni-imp001', 'EPSON', 'Smart tank  790', 'Multifuncional', 'tinta', 1, 'Operativa', '', '2026-10-06 18:32:05', '2026-10-14 19:39:39');
 
 -- --------------------------------------------------------

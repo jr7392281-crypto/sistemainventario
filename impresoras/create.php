@@ -94,11 +94,11 @@ include('../app/controllers/areas/listado_de_areas.php');
 
                                         <!-- Segunda fila -->
                                         <div class="row">
-                                            <!-- Tipo de equipo -->
+                                            <!-- Tipo de impresora -->
                                             <div class="col-md-3">
                                                 <div class="form-group">
-                                                    <label for="tipo_equipo">Tipo de equipo:</label>
-                                                    <input type="text" id="tipo_equipo" name="tipo_equipo"
+                                                    <label for="tipo_impresora">Tipo de impresora:</label>
+                                                    <input type="text" id="tipo_impresora" name="tipo_impresora"
                                                         class="form-control" maxlength="100"
                                                         placeholder="Multifuncional, impresora..." required>
                                                 </div>

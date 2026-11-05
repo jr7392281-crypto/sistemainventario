@@ -57,8 +57,8 @@ include('../layout/parte1.php');
                                 <div class="row">
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <label for="tipo_equipo">Tipo de equipo:</label>
-                                            <input id="tipo_equipo" name="tipo_equipo" class="form-control" maxlength="100" value="<?php echo htmlspecialchars($impresora['tipo_equipo'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                                            <label for="tipo_impresora">Tipo de impresora:</label>
+                                            <input id="tipo_impresora" name="tipo_impresora" class="form-control" maxlength="100" value="<?php echo htmlspecialchars($impresora['tipo_impresora'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                                         </div>
                                     </div>
                                     <div class="col-md-4">
