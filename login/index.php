@@ -41,7 +41,7 @@
         }
         ?>
         <center>
-            <img src="../public/images/logo-muni.png" alt="" width="200px">
+            <img src="../public/images/logo-sistema.png" alt="" width="200px">
         </center>
         <br>
         <div class="card-body login-card-body">
