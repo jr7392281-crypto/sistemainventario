@@ -180,7 +180,8 @@ CREATE TABLE `tb_roles` (
 
 INSERT INTO `tb_roles` (`id_rol`, `rol`, `fecha_registro`, `fecha_actualizacion`) VALUES
 (1, 'administrador', '2026-09-29 17:14:19', '2026-09-29 17:14:19'),
-(3, 'usuario', '2026-10-02 18:18:28', '2026-10-24 22:39:29');
+(3, 'usuario', '2026-10-02 18:18:28', '2026-10-24 22:39:29'),
+(4, 'encargado de inventario', CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP());
 
 -- --------------------------------------------------------
 
@@ -301,7 +302,7 @@ ALTER TABLE `tb_password_resets`
 -- AUTO_INCREMENT de la tabla `tb_roles`
 --
 ALTER TABLE `tb_roles`
-  MODIFY `id_rol` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_rol` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `tb_usuarios`

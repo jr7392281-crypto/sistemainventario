@@ -2,7 +2,7 @@
 <?php
 
 include("../../config.php");
-include("../../solo_administrador.php");
+include("../../solo_inventario.php");
 
 // Recuperar los datos del formulario POST
 $codigo = $_POST['codigo'];

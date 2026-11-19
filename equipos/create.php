@@ -1,7 +1,7 @@
 <?php
 include('../app/config.php');
 include('../layout/sesion.php');
-include('../app/solo_administrador.php');
+include('../app/solo_inventario.php');
 include('../layout/parte1.php');
 include('../app/controllers/equipos/listado_de_equipos.php');
 include('../app/controllers/areas/listado_de_areas.php');

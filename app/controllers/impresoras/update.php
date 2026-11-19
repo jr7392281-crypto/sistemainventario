@@ -1,6 +1,6 @@
 <?php
 include('../../config.php');
-include('../../solo_administrador.php');
+include('../../solo_inventario.php');
 
 $id_impresora = $_POST['id_impresora'];
 $fabricante = $_POST['fabricante'];

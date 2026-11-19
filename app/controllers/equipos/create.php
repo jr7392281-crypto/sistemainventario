@@ -2,7 +2,7 @@
 <?php
 
 include('../../config.php');
-include('../../solo_administrador.php');
+include('../../solo_inventario.php');
 
 $codigo = $_POST['codigo'];
 $nombre_dispositivo = $_POST['nombre_dispositivo'];

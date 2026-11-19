@@ -177,14 +177,16 @@ include('../app/controllers/equipos/listado_de_equipos.php');
                                                         Ver
                                                     </a>
 
-                                                    <?php if ($rol_sesion === 'administrador') { ?>
+                                                    <?php if (in_array($rol_sesion, ['administrador', 'encargado de inventario'], true)) { ?>
                                                         <a href="update.php?id=<?php echo $id_equipo; ?>"
                                                            class="btn btn-success btn-sm"
                                                            title="Editar equipo">
                                                             <i class="fas fa-edit"></i>
                                                             Editar
                                                         </a>
+                                                    <?php } ?>
 
+                                                    <?php if ($rol_sesion === 'administrador') { ?>
                                                         <a href="delete.php?id=<?php echo $id_equipo; ?>"
                                                            class="btn btn-danger btn-sm"
                                                            title="Eliminar equipo">

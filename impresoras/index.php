@@ -29,7 +29,7 @@ include('../app/controllers/impresoras/listado_impresoras.php');
                         <div class="card-header">
                             <h3 class="card-title">Impresoras registradas</h3>
                             <div class="card-tools">
-                                <?php if ($rol_sesion === 'administrador') { ?>
+                                <?php if (in_array($rol_sesion, ['administrador', 'encargado de inventario'], true)) { ?>
                                     <a href="create.php" class="btn btn-primary btn-sm">
                                         <i class="fas fa-plus"></i> Registrar impresora
                                     </a>
@@ -105,11 +105,13 @@ include('../app/controllers/impresoras/listado_impresoras.php');
                                                             <i class="fas fa-eye"></i>
                                                             Ver
                                                         </a>
-                                                        <?php if ($rol_sesion === 'administrador') { ?>
+                                                        <?php if (in_array($rol_sesion, ['administrador', 'encargado de inventario'], true)) { ?>
                                                             <a href="update.php?id=<?php echo $id_impresora; ?>"
                                                                 class="btn btn-success btn-sm" title="Editar impresora">
                                                                 <i class="fas fa-pencil-alt"></i> Editar
                                                             </a>
+                                                        <?php } ?>
+                                                        <?php if ($rol_sesion === 'administrador') { ?>
                                                             <a href="delete.php?id=<?php echo $id_impresora; ?>"
                                                                 class="btn btn-danger btn-sm" title="Eliminar impresora">
                                                                 <i class="fas fa-trash-alt"></i> Eliminar

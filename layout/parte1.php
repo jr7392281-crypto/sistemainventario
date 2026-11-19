@@ -178,7 +178,7 @@
                     <p>Listado de Equipos</p>
                   </a>
                 </li>
-                <?php if ($rol_sesion === 'administrador') { ?>
+                <?php if (in_array($rol_sesion, ['administrador', 'encargado de inventario'], true)) { ?>
                   <li class="nav-item">
                     <a href="<?php echo $URL; ?>/equipos/create.php" class="nav-link">
                       <i class="far fa-circle nav-icon"></i>
@@ -205,7 +205,7 @@
                     <p>Listado de Impresoras</p>
                   </a>
                 </li>
-                <?php if ($rol_sesion === 'administrador') { ?>
+                <?php if (in_array($rol_sesion, ['administrador', 'encargado de inventario'], true)) { ?>
                   <li class="nav-item">
                     <a href="<?php echo $URL; ?>/impresoras/create.php" class="nav-link">
                       <i class="far fa-circle nav-icon"></i>
