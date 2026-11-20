@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 02-11-2026 a las 15:03:33
+-- Tiempo de generación: 20-11-2026 a las 17:37:00
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -49,6 +49,37 @@ INSERT INTO `tb_areas` (`id_area`, `nombre`, `fecha_registro`, `fecha_actualizac
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `tb_componentes`
+--
+
+CREATE TABLE `tb_componentes` (
+  `id_componente` int(11) NOT NULL,
+  `codigo` varchar(50) NOT NULL,
+  `nombre` varchar(120) NOT NULL,
+  `tipo_componente` varchar(50) NOT NULL,
+  `marca` varchar(80) DEFAULT NULL,
+  `capacidad` varchar(30) DEFAULT NULL,
+  `especificacion` varchar(100) DEFAULT NULL,
+  `stock_actual` int(10) UNSIGNED NOT NULL DEFAULT 0,
+  `stock_minimo` int(10) UNSIGNED NOT NULL DEFAULT 0,
+  `unidad` varchar(20) NOT NULL DEFAULT 'unidad',
+  `activo` tinyint(1) NOT NULL DEFAULT 1,
+  `fecha_registro` datetime DEFAULT current_timestamp(),
+  `fecha_actualizacion` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `tb_componentes`
+--
+
+INSERT INTO `tb_componentes` (`id_componente`, `codigo`, `nombre`, `tipo_componente`, `marca`, `capacidad`, `especificacion`, `stock_actual`, `stock_minimo`, `unidad`, `activo`, `fecha_registro`, `fecha_actualizacion`) VALUES
+(6, 'RAM-DDR4-SODIMM-8G', 'Memoria RAM DDR4 8 GB SODIMM', 'Memoria RAM', NULL, '8 GB', 'DDR4 3200 MHz, SODIMM (laptop)', 2, 1, 'unidad', 1, '2026-11-20 01:55:31', '2026-11-20 01:55:31'),
+(7, 'PSU-ATX-500W', 'Fuente de poder ATX 500 W', 'Fuente de poder', NULL, '500 W', 'ATX', 2, 1, 'unidad', 1, '2026-11-20 01:55:31', '2026-11-20 01:55:31'),
+(8, 'INS-PASTA-4G', 'Pasta térmica 4 g', 'Insumo de mantenimiento', NULL, '4 g', 'Jeringa', 3, 2, 'unidad', 1, '2026-11-20 01:55:31', '2026-11-20 01:55:31');
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `tb_equipos`
 --
 
@@ -77,7 +108,8 @@ CREATE TABLE `tb_equipos` (
 --
 
 INSERT INTO `tb_equipos` (`id_equipo`, `codigo`, `nombre_dispositivo`, `procesador`, `ram`, `tarjeta_grafica`, `sistema_operativo`, `almacenamiento`, `monitor`, `ip`, `mouse`, `teclado`, `id_area`, `estado`, `observacion`, `fecha_registro`, `fecha_actualizacion`) VALUES
-(1, 'Muni-Pc001', 'PC PRO', 'intel', '16 GB', 'NVIDIA', 'Windows 10', '512 GB SSD', '24 pulgadas', '192.198.155', 'logitech', 'logitech', 1, 'Mantenimiento', '', '2026-10-06 16:55:12', '2026-10-10 17:27:26');
+(1, 'Muni-Pc001', 'PC PRO', 'intel', '16 GB', 'NVIDIA', 'Windows 10', '512 GB SSD', '24 pulgadas', '192.198.155', 'logitech', 'logitech', 1, 'Mantenimiento', '', '2026-10-06 16:55:12', '2026-10-10 17:27:26'),
+(2, 'Muni-Pc002', 'leno', 'intelcorrei7', '9 GB', 'integrada', 'Windows 10 ', '500 SSD', '18 pulgadas', '190.192.158', 'Logitech', 'Logitech', 5, 'Operativo', '', '2026-11-18 21:54:42', '2026-11-18 21:54:42');
 
 -- --------------------------------------------------------
 
@@ -104,7 +136,8 @@ CREATE TABLE `tb_impresoras` (
 --
 
 INSERT INTO `tb_impresoras` (`id_impresora`, `codigo`, `fabricante`, `modelo`, `tipo_impresora`, `tipo_impresion`, `id_area`, `estado`, `observacion`, `fecha_registro`, `fecha_actualizacion`) VALUES
-(6, 'Muni-imp001', 'EPSON', 'Smart tank  790', 'Multifuncional', 'tinta', 1, 'Operativa', '', '2026-10-06 18:32:05', '2026-10-14 19:39:39');
+(6, 'Muni-imp001', 'EPSON', 'Smart tank  790', 'Multifuncional', 'tinta', 2, 'Dañada', '', '2026-10-06 18:32:05', '2026-11-05 13:19:28'),
+(7, 'Muni-imp002', 'EPSON', 'Smart tank 790', 'multifuncional', 'laser', 6, 'En reparación', '', '2026-11-05 13:22:07', '2026-11-05 13:22:07');
 
 -- --------------------------------------------------------
 
@@ -132,6 +165,23 @@ INSERT INTO `tb_mantenimientos` (`id_mantenimiento`, `id_equipo`, `id_impresora`
 (3, NULL, 6, 1, '2026-10-09', 'Correctivo', 'se rompio el escaner', '2026-10-09 18:03:19'),
 (4, NULL, 6, 1, '2026-10-09', 'Correctivo', 'se apaga sola', '2026-10-09 18:21:37'),
 (5, 1, NULL, 1, '2026-10-09', 'Correctivo', 'se apaga sola', '2026-10-09 18:22:08');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tb_movimientos_stock`
+--
+
+CREATE TABLE `tb_movimientos_stock` (
+  `id_movimiento` int(11) NOT NULL,
+  `id_componente` int(11) NOT NULL,
+  `id_usuario` int(11) NOT NULL,
+  `id_mantenimiento` int(11) DEFAULT NULL,
+  `tipo` enum('entrada','salida') NOT NULL,
+  `cantidad` int(10) UNSIGNED NOT NULL,
+  `observacion` text DEFAULT NULL,
+  `fecha_registro` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -179,9 +229,12 @@ CREATE TABLE `tb_roles` (
 --
 
 INSERT INTO `tb_roles` (`id_rol`, `rol`, `fecha_registro`, `fecha_actualizacion`) VALUES
-(1, 'administrador', '2026-09-29 17:14:19', '2026-09-29 17:14:19'),
+(1, 'administrador', '2026-09-29 17:14:19', '2026-11-19 17:25:13'),
 (3, 'usuario', '2026-10-02 18:18:28', '2026-10-24 22:39:29'),
-(4, 'encargado de inventario', CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP());
+(4, 'encargado de inventario', '2026-11-18 21:38:13', '2026-11-18 21:38:13'),
+(5, 'super administrador', '2026-11-20 01:25:44', '2026-11-20 01:25:44'),
+(6, 'abastecedor', '2026-11-20 01:26:57', '2026-11-20 01:26:57'),
+(7, 'soporte tecnico', '2026-11-20 01:27:12', '2026-11-20 01:27:12');
 
 -- --------------------------------------------------------
 
@@ -207,7 +260,7 @@ CREATE TABLE `tb_usuarios` (
 INSERT INTO `tb_usuarios` (`id_usuario`, `nombres`, `email`, `password_user`, `id_rol`, `id_area`, `fecha_registro`, `fecha_actualizacion`) VALUES
 (1, 'jose', 'jr7392281@gmail.com', '$2y$10$9r4f9tOC7D0wOuLKOUNfDOonrEC0I4khbvKL55/9zCeALJoiWFFzi', 1, 6, '2026-09-29 18:05:55', '2026-10-22 17:47:35'),
 (7, 'raul', 'raul@gmail.com', '$2y$10$fvVk2CiA0DL1CvfHgBuLUuS74lb0h2ERBloqdTA7PAtsWI9oVzBWy', 3, 1, '2026-10-22 17:49:10', '2026-10-22 17:49:10'),
-(8, 'Juana', 'Jun@gmail.com', '$2y$10$K21o/TxrhMXsT/uHFsIZaupCWvPKEK9vF5OUZigKnJrfTbArnkzUK', 3, 5, '2026-10-24 22:40:04', '2026-10-24 22:40:20');
+(8, 'Juana', 'Jun@gmail.com', '$2y$10$tc//lhuY8E86D1/JqhG0audhUKa4OUBOoVV0Px8uIhu/G.APe0rCG', 4, 5, '2026-10-24 22:40:04', '2026-11-18 21:47:08');
 
 --
 -- Índices para tablas volcadas
@@ -218,6 +271,13 @@ INSERT INTO `tb_usuarios` (`id_usuario`, `nombres`, `email`, `password_user`, `i
 --
 ALTER TABLE `tb_areas`
   ADD PRIMARY KEY (`id_area`);
+
+--
+-- Indices de la tabla `tb_componentes`
+--
+ALTER TABLE `tb_componentes`
+  ADD PRIMARY KEY (`id_componente`),
+  ADD UNIQUE KEY `uq_componentes_codigo` (`codigo`);
 
 --
 -- Indices de la tabla `tb_equipos`
@@ -241,6 +301,15 @@ ALTER TABLE `tb_mantenimientos`
   ADD KEY `fk_mantenimientos_equipos` (`id_equipo`),
   ADD KEY `fk_mantenimientos_impresoras` (`id_impresora`),
   ADD KEY `fk_mantenimiento_usuario` (`id_usuario`);
+
+--
+-- Indices de la tabla `tb_movimientos_stock`
+--
+ALTER TABLE `tb_movimientos_stock`
+  ADD PRIMARY KEY (`id_movimiento`),
+  ADD KEY `id_componente` (`id_componente`),
+  ADD KEY `id_usuario` (`id_usuario`),
+  ADD KEY `id_mantenimiento` (`id_mantenimiento`);
 
 --
 -- Indices de la tabla `tb_password_resets`
@@ -275,22 +344,34 @@ ALTER TABLE `tb_areas`
   MODIFY `id_area` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
+-- AUTO_INCREMENT de la tabla `tb_componentes`
+--
+ALTER TABLE `tb_componentes`
+  MODIFY `id_componente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
 -- AUTO_INCREMENT de la tabla `tb_equipos`
 --
 ALTER TABLE `tb_equipos`
-  MODIFY `id_equipo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_equipo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `tb_impresoras`
 --
 ALTER TABLE `tb_impresoras`
-  MODIFY `id_impresora` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id_impresora` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `tb_mantenimientos`
 --
 ALTER TABLE `tb_mantenimientos`
   MODIFY `id_mantenimiento` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `tb_movimientos_stock`
+--
+ALTER TABLE `tb_movimientos_stock`
+  MODIFY `id_movimiento` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `tb_password_resets`
@@ -302,7 +383,7 @@ ALTER TABLE `tb_password_resets`
 -- AUTO_INCREMENT de la tabla `tb_roles`
 --
 ALTER TABLE `tb_roles`
-  MODIFY `id_rol` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id_rol` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `tb_usuarios`
@@ -333,6 +414,14 @@ ALTER TABLE `tb_mantenimientos`
   ADD CONSTRAINT `fk_mantenimiento_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `tb_usuarios` (`id_usuario`) ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_mantenimientos_equipos` FOREIGN KEY (`id_equipo`) REFERENCES `tb_equipos` (`id_equipo`) ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_mantenimientos_impresoras` FOREIGN KEY (`id_impresora`) REFERENCES `tb_impresoras` (`id_impresora`) ON UPDATE CASCADE;
+
+--
+-- Filtros para la tabla `tb_movimientos_stock`
+--
+ALTER TABLE `tb_movimientos_stock`
+  ADD CONSTRAINT `tb_movimientos_stock_ibfk_1` FOREIGN KEY (`id_componente`) REFERENCES `tb_componentes` (`id_componente`),
+  ADD CONSTRAINT `tb_movimientos_stock_ibfk_2` FOREIGN KEY (`id_usuario`) REFERENCES `tb_usuarios` (`id_usuario`),
+  ADD CONSTRAINT `tb_movimientos_stock_ibfk_3` FOREIGN KEY (`id_mantenimiento`) REFERENCES `tb_mantenimientos` (`id_mantenimiento`);
 
 --
 -- Filtros para la tabla `tb_password_resets`
