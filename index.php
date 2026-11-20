@@ -18,8 +18,7 @@ if ($rol_sesion === 'administrador') {
     <div class="container-fluid">
       <div class="row mb-2">
         <div class="col-sm-12">
-          <h1 class="m-0">Bienvenida al SISTEMA DE INVENTARIO Y MANTENIMIENTO -
-            <?php echo isset($nombres_sesion) ? $nombres_sesion : 'Usuario'; ?>
+          <h1 class="m-0">Bienvenido al SISTEMA DE INVENTARIO Y MANTENIMIENTO - <?php echo $rol_sesion ?></h1>
           </h1>
         </div><!-- /.col -->
       </div><!-- /.row -->
