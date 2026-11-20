@@ -153,6 +153,7 @@ CREATE TABLE `tb_mantenimientos` (
   `fecha` date NOT NULL,
   `tipo_mantenimiento` varchar(50) NOT NULL,
   `observacion` text NOT NULL,
+  `estado` varchar(20) NOT NULL DEFAULT 'reportado',
   `fecha_registro` datetime DEFAULT current_timestamp()
 ) ;
 
@@ -435,6 +436,26 @@ ALTER TABLE `tb_password_resets`
 ALTER TABLE `tb_usuarios`
   ADD CONSTRAINT `fk_usuario_area` FOREIGN KEY (`id_area`) REFERENCES `tb_areas` (`id_area`) ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_usuarios_roles` FOREIGN KEY (`id_rol`) REFERENCES `tb_roles` (`id_rol`) ON UPDATE CASCADE;
+
+-- Notificaciones internas para reportes de mantenimiento.
+CREATE TABLE `tb_notificaciones` (
+  `id_notificacion` int(11) NOT NULL AUTO_INCREMENT,
+  `id_usuario_destino` int(11) NOT NULL,
+  `id_usuario_origen` int(11) DEFAULT NULL,
+  `id_mantenimiento` int(11) DEFAULT NULL,
+  `tipo` varchar(40) NOT NULL,
+  `titulo` varchar(120) NOT NULL,
+  `mensaje` varchar(255) NOT NULL,
+  `leida` tinyint(1) NOT NULL DEFAULT 0,
+  `fecha_registro` datetime NOT NULL DEFAULT current_timestamp(),
+  `fecha_lectura` datetime DEFAULT NULL,
+  PRIMARY KEY (`id_notificacion`),
+  KEY `idx_notificaciones_destino_leida_fecha` (`id_usuario_destino`, `leida`, `fecha_registro`),
+  KEY `idx_notificaciones_mantenimiento` (`id_mantenimiento`),
+  CONSTRAINT `fk_notificaciones_destino` FOREIGN KEY (`id_usuario_destino`) REFERENCES `tb_usuarios` (`id_usuario`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_notificaciones_origen` FOREIGN KEY (`id_usuario_origen`) REFERENCES `tb_usuarios` (`id_usuario`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `fk_notificaciones_mantenimiento` FOREIGN KEY (`id_mantenimiento`) REFERENCES `tb_mantenimientos` (`id_mantenimiento`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
