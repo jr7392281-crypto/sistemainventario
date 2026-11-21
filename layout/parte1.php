@@ -210,7 +210,7 @@
             <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
 
-            <?php if ($rol_sesion === 'administrador') { ?>
+            <?php if (in_array($rol_sesion, ['administrador', 'super administrador'], true)) { ?>
               <li class="nav-item">
                 <a href="#" class="nav-link active">
                   <i class="nav-icon fas fa-users"></i>
@@ -230,7 +230,7 @@
               </li>
 
               <!--roles-->
-              <li class="nav-item">
+              <!-- <li class="nav-item">
                 <a href="#" class="nav-link active">
                   <i class="nav-icon fas fa-edit"></i>
                   <p>
@@ -240,19 +240,19 @@
                 </a>
                 <ul class="nav nav-treeview">
                   <li class="nav-item">
-                    <a href="<?php echo $URL; ?>/roles" class="nav-link">
+                    <a href="/roles" class="nav-link">
                       <i class="far fa-circle nav-icon"></i>
                       <p>Listado de Roles</p>
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a href="<?php echo $URL; ?>/roles/create.php" class="nav-link">
+                    <a href="/roles/create.php" class="nav-link">
                       <i class="far fa-circle nav-icon"></i>
                       <p>Creación de Roles</p>
                     </a>
                   </li>
                 </ul>
-              </li>
+              </li> -->
               <!-- Fin de Roles -->
               <!--areas-->
               <li class="nav-item">

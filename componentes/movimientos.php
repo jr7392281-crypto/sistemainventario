@@ -1,36 +1,8 @@
 <?php
 include('../app/config.php');
 include('../layout/sesion.php');
-
-$componentesConsulta = $pdo->query(
-    'SELECT id_componente, codigo, nombre, stock_actual
-     FROM tb_componentes
-     WHERE estado = 1
-     ORDER BY nombre ASC'
-);
-$componentes = $componentesConsulta->fetchAll(PDO::FETCH_ASSOC);
-
-$mantenimientosConsulta = $pdo->query(
-    'SELECT id_mantenimiento, fecha, tipo_mantenimiento
-     FROM tb_mantenimientos
-     ORDER BY id_mantenimiento DESC
-     LIMIT 100'
-);
-$mantenimientos = $mantenimientosConsulta->fetchAll(PDO::FETCH_ASSOC);
-
-$movimientosConsulta = $pdo->query(
-    'SELECT m.id_movimiento, m.tipo, m.cantidad, m.observacion, m.fecha_registro,
-            c.codigo, c.nombre AS componente,
-            u.nombres AS usuario, m.id_mantenimiento
-     FROM tb_movimientos_stock AS m
-     INNER JOIN tb_componentes AS c ON c.id_componente = m.id_componente
-     INNER JOIN tb_usuarios AS u ON u.id_usuario = m.id_usuario
-     ORDER BY m.fecha_registro DESC, m.id_movimiento DESC
-     LIMIT 100'
-);
-$movimientos = $movimientosConsulta->fetchAll(PDO::FETCH_ASSOC);
-
 include('../layout/parte1.php');
+include('../app/controllers/componentes/listado_movimientos.php');
 ?>
 
 <div class="content-wrapper">
@@ -43,7 +15,7 @@ include('../layout/parte1.php');
 
     <div class="content">
         <div class="container-fluid">
-            <?php if (!empty($componentes) && !empty($mantenimientos)) { ?>
+            <?php if (!empty($componentes_datos) && !empty($mantenimientos_datos)) { ?>
                 <div class="card card-primary">
                     <div class="card-header"><h3 class="card-title">Registrar componente usado en un mantenimiento</h3></div>
                     <form action="../app/controllers/componentes/movimiento.php" method="post">
@@ -53,7 +25,7 @@ include('../layout/parte1.php');
                                     <label for="id_componente">Componente</label>
                                     <select id="id_componente" name="id_componente" class="form-control" required>
                                         <option value="">Selecciona un componente</option>
-                                        <?php foreach ($componentes as $componente) { ?>
+                                        <?php foreach ($componentes_datos as $componente) { ?>
                                             <option value="<?php echo (int) $componente['id_componente']; ?>">
                                                 <?php echo htmlspecialchars($componente['codigo'] . ' - ' . $componente['nombre'] . ' (stock: ' . $componente['stock_actual'] . ')', ENT_QUOTES, 'UTF-8'); ?>
                                             </option>
@@ -68,7 +40,7 @@ include('../layout/parte1.php');
                                     <label for="id_mantenimiento">Mantenimiento atendido</label>
                                     <select id="id_mantenimiento" name="id_mantenimiento" class="form-control" required>
                                         <option value="">Selecciona un mantenimiento</option>
-                                        <?php foreach ($mantenimientos as $mantenimiento) { ?>
+                                        <?php foreach ($mantenimientos_datos as $mantenimiento) { ?>
                                             <option value="<?php echo (int) $mantenimiento['id_mantenimiento']; ?>">
                                                 <?php echo htmlspecialchars('#' . $mantenimiento['id_mantenimiento'] . ' - ' . $mantenimiento['fecha'] . ' - ' . $mantenimiento['tipo_mantenimiento'], ENT_QUOTES, 'UTF-8'); ?>
                                             </option>
@@ -87,9 +59,9 @@ include('../layout/parte1.php');
                         </div>
                     </form>
                 </div>
-            <?php } elseif (empty($componentes)) { ?>
+            <?php } elseif (empty($componentes_datos)) { ?>
                 <div class="alert alert-info">Primero registra un componente para poder anotar su uso.</div>
-            <?php } elseif (empty($mantenimientos)) { ?>
+            <?php } elseif (empty($mantenimientos_datos)) { ?>
                 <div class="alert alert-info">No hay mantenimientos registrados para asociar el uso de un componente.</div>
             <?php } ?>
 
@@ -104,10 +76,10 @@ include('../layout/parte1.php');
                             </tr>
                         </thead>
                         <tbody>
-                            <?php if (empty($movimientos)) { ?>
+                            <?php if (empty($movimientos_datos)) { ?>
                                 <tr><td colspan="6" class="text-center text-muted">Todavía no se han registrado componentes usados.</td></tr>
                             <?php } else { ?>
-                                <?php foreach ($movimientos as $movimiento) { ?>
+                                <?php foreach ($movimientos_datos as $movimiento) { ?>
                                     <tr>
                                         <td><?php echo htmlspecialchars(date('d/m/Y H:i', strtotime($movimiento['fecha_registro'])), ENT_QUOTES, 'UTF-8'); ?></td>
                                         <td><?php echo htmlspecialchars($movimiento['codigo'] . ' - ' . $movimiento['componente'], ENT_QUOTES, 'UTF-8'); ?></td>

@@ -1,15 +1,8 @@
 <?php
 include('../app/config.php');
 include('../layout/sesion.php');
-$consulta_componentes = $pdo->query(
-    'SELECT codigo, nombre, tipo_componente, aplica_a, marca,
-            especificacion, stock_actual, stock_minimo
-     FROM tb_componentes
-     WHERE estado = 1
-     ORDER BY tipo_componente, nombre'
-);
-$componentes = $consulta_componentes->fetchAll(PDO::FETCH_ASSOC);
 include('../layout/parte1.php');
+include('../app/controllers/componentes/listado_componentes.php');
 ?>
 
 <div class="content-wrapper">
@@ -46,12 +39,12 @@ include('../layout/parte1.php');
                             </tr>
                         </thead>
                         <tbody>
-                            <?php if (empty($componentes)) { ?>
+                            <?php if (empty($componentes_datos)) { ?>
                                 <tr>
                                     <td colspan="5" class="text-center text-muted">Todavía no hay componentes registrados.</td>
                                 </tr>
                             <?php } else { ?>
-                                <?php foreach ($componentes as $componente) {
+                                <?php foreach ($componentes_datos as $componente) {
                                     $stock = (int) $componente['stock_actual'];
                                     $minimo = (int) $componente['stock_minimo'];
                                     $stockBajo = $stock <= $minimo;

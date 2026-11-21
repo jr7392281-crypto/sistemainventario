@@ -18,7 +18,7 @@ $consulta_rol = $pdo->prepare(
 $consulta_rol->execute([':email' => $_SESSION['sesion_email']]);
 $rol_sesion = $consulta_rol->fetchColumn();
 
-if ($rol_sesion !== 'administrador') {
+if (!in_array(strtolower(trim((string) $rol_sesion)), ['administrador', 'super administrador'], true)) {
     $_SESSION['mensaje'] = 'No tienes permiso para acceder a esta sección.';
     $_SESSION['icono'] = 'error';
     header('Location: ' . $URL . '/index.php');

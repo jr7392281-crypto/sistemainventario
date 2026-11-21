@@ -4,20 +4,20 @@ include('../app/config.php');
 include('../layout/sesion.php');
 include('../app/solo_administrador.php');
 include('../layout/parte1.php');
-
 include('../app/controllers/usuarios/listado_de_usuarios.php');
 include('../app/controllers/roles/listado_de_roles.php');
 include('../app/controllers/areas/listado_de_areas.php');
 
 if (isset($_SESSION['mensaje'])) {
   $respuesta = $_SESSION['mensaje'];
+  $icono_mensaje = $_SESSION['icono'] ?? 'success';
 ?>
 
   <script>
     Swal.fire({
       position: "top-end",
-      icon: "success",
-      title: '<?php echo htmlspecialchars($respuesta, ENT_QUOTES, "UTF-8"); ?>',
+      icon: <?php echo json_encode($icono_mensaje); ?>,
+      title: <?php echo json_encode($respuesta); ?>,
       showConfirmButton: false,
       timer: 1500
     });
@@ -25,6 +25,7 @@ if (isset($_SESSION['mensaje'])) {
 
 <?php
   unset($_SESSION['mensaje']);
+  unset($_SESSION['icono']);
 }
 ?>
 
@@ -109,6 +110,7 @@ if (isset($_SESSION['mensaje'])) {
 
                   <?php
                   $contador = 0;
+                  $rol_sesion_normalizado = strtolower(trim((string) $rol_sesion));
 
                   foreach ($usuarios_datos as $usuario_dato) {
 
@@ -117,6 +119,12 @@ if (isset($_SESSION['mensaje'])) {
                     $email_usuario = $usuario_dato['email'];
                     $rol_usuario = $usuario_dato['rol'];
                     $area_usuario = $usuario_dato['area'] ?? '';
+                    $rol_usuario_normalizado = strtolower(trim($rol_usuario));
+                    $es_usuario_actual = strcasecmp($email_usuario, $_SESSION['sesion_email'] ?? '') === 0;
+                    $puede_eliminar_usuario = !$es_usuario_actual && !(
+                      $rol_sesion_normalizado === 'administrador'
+                      && $rol_usuario_normalizado === 'super administrador'
+                    );
                   ?>
 
                     <tr>
@@ -171,12 +179,14 @@ if (isset($_SESSION['mensaje'])) {
                             </button>
 
                             <!-- BOTÓN BORRAR -->
-                            <button type="button"
-                              class="btn btn-danger btn-sm"
-                              data-toggle="modal"
-                              data-target="#modalEliminarUsuario<?php echo $id_usuario; ?>">
-                              <i class="fas fa-trash"></i> Eliminar
-                            </button>
+                            <?php if ($puede_eliminar_usuario) { ?>
+                              <button type="button"
+                                class="btn btn-danger btn-sm"
+                                data-toggle="modal"
+                                data-target="#modalEliminarUsuario<?php echo (int) $id_usuario; ?>">
+                                <i class="fas fa-trash"></i> Eliminar
+                              </button>
+                            <?php } ?>
 
                           </div>
 
@@ -606,7 +616,21 @@ if (isset($_SESSION['mensaje'])) {
 
 </div>
 <!-- MODAL ELIMINAR USUARIO -->
-<div class="modal fade" id="modalEliminarUsuario<?php echo $id_usuario; ?>" tabindex="-1" role="dialog">
+<?php foreach ($usuarios_datos as $usuario_dato) {
+    $id_usuario_modal = (int) $usuario_dato['id_usuario'];
+    $email_modal = $usuario_dato['email'];
+    $rol_modal = strtolower(trim($usuario_dato['rol']));
+    $es_usuario_actual_modal = strcasecmp($email_modal, $_SESSION['sesion_email'] ?? '') === 0;
+    $puede_eliminar_modal = !$es_usuario_actual_modal && !(
+      $rol_sesion_normalizado === 'administrador'
+      && $rol_modal === 'super administrador'
+    );
+
+    if (!$puede_eliminar_modal) {
+      continue;
+    }
+?>
+<div class="modal fade" id="modalEliminarUsuario<?php echo $id_usuario_modal; ?>" tabindex="-1" role="dialog">
 
     <div class="modal-dialog modal-dialog-centered" role="document">
 
@@ -631,7 +655,7 @@ if (isset($_SESSION['mensaje'])) {
                 <h5>¿Estás seguro de eliminar este usuario?</h5>
 
                 <p class="text-muted mb-0">
-                    Usuario: <strong><?php echo htmlspecialchars($usuario['nombres'] ?? ''); ?></strong>
+                    Usuario: <strong><?php echo htmlspecialchars($usuario_dato['nombres'], ENT_QUOTES, 'UTF-8'); ?></strong>
                 </p>
 
                 <p class="text-danger mt-2 mb-0">
@@ -649,7 +673,7 @@ if (isset($_SESSION['mensaje'])) {
                 <form action="../app/controllers/usuarios/delete.php" method="POST">
 
                     <input type="hidden" name="id_usuario"
-                           value="<?php echo $id_usuario; ?>">
+                           value="<?php echo $id_usuario_modal; ?>">
 
                     <button type="submit" class="btn btn-danger">
                         <i class="fas fa-trash"></i> Sí, eliminar
@@ -664,6 +688,7 @@ if (isset($_SESSION['mensaje'])) {
     </div>
 
 </div>
+<?php } ?>
 <!-- FIN CONTENT WRAPPER -->
 
 

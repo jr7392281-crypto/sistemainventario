@@ -1,9 +1,8 @@
 <?php
 include('../app/config.php');
 include('../layout/sesion.php');
-$consulta_componentes = $pdo->query('SELECT id_componente FROM tb_componentes');
-$componentes_datos = $consulta_componentes->fetchAll(PDO::FETCH_ASSOC);
 include('../layout/parte1.php');
+include('../app/controllers/componentes/listado_para_crear.php');
 ?>
 
 <div class="content-wrapper">
