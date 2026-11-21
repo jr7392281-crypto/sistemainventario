@@ -1,6 +1,7 @@
 <?php
 include('../app/config.php');
 include('../layout/sesion.php');
+include('../app/notificaciones.php');
 include('../app/controllers/mantenimiento/show_mantenimiento.php');
 include('../layout/parte1.php');
 ?>
@@ -39,6 +40,15 @@ include('../layout/parte1.php');
                                 <label>Tipo de mantenimiento</label>
                                 <input type="text" class="form-control"
                                        value="<?php echo htmlspecialchars($tipo_mantenimiento ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                       readonly>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Estado del reporte</label>
+                                <input type="text" class="form-control"
+                                       value="<?php echo htmlspecialchars(estadoMantenimientoEtiqueta($estado_mantenimiento ?? 'reportado'), ENT_QUOTES, 'UTF-8'); ?>"
                                        readonly>
                             </div>
                         </div>

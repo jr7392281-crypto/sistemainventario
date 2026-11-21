@@ -1,6 +1,7 @@
 <?php
 include('../app/config.php');
 include('../layout/sesion.php');
+include('../app/notificaciones.php');
 include('../app/controllers/mantenimiento/listado_mantenimientos.php');
 include('../layout/parte1.php');
 ?>
@@ -38,6 +39,7 @@ include('../layout/parte1.php');
                                 <th>Fecha</th>
                                 <th>Activo relacionado</th>
                                 <th>Tipo de mantenimiento</th>
+                                <th>Estado</th>
                                 <th>Solicitante</th>
                                 <th>Observación</th>
                                 <th>Acciones</th>
@@ -106,6 +108,19 @@ include('../layout/parte1.php');
 
                                         <span class="badge badge-<?php echo $color; ?>">
                                             <?php echo htmlspecialchars($tipo, ENT_QUOTES, 'UTF-8'); ?>
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <?php
+                                        $estado = $mantenimiento['estado'] ?? 'reportado';
+                                        $etiqueta_estado = estadoMantenimientoEtiqueta($estado);
+                                        $color_estado = $estado === 'resuelto'
+                                            ? 'success'
+                                            : ($estado === 'en_proceso' ? 'warning' : 'secondary');
+                                        ?>
+                                        <span class="badge badge-<?php echo $color_estado; ?>">
+                                            <?php echo htmlspecialchars($etiqueta_estado, ENT_QUOTES, 'UTF-8'); ?>
                                         </span>
                                     </td>
 

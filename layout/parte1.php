@@ -62,9 +62,9 @@
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
       <!-- Brand Logo -->
       <a href="<?php echo $URL; ?>" class="brand-link">
-        <img src="<?php echo $URL; ?>/public/images/folder.png" alt="AdminLTE Logo"
+        <img src="<?php echo $URL; ?> /public/images/folder.png" alt="AdminLTE Logo"
           class="brand-image img-circle elevation-3" style="opacity: .8">
-        <span class="brand-text font-weight-light">SIS INV MANT</span>
+        <span class="brand-text font-weight-light">SIS INV MAN</span>
       </a>
 
       <!-- Sidebar -->
@@ -86,80 +86,78 @@
                with font-awesome or any other icon font library -->
 
             <?php if ($rol_sesion === 'administrador') { ?>
-              <li class="nav-item">
-                <a href="#" class="nav-link active">
-                  <i class="nav-icon fas fa-users"></i>
-                  <p>
-                    Usuarios
-                    <i class="right fas fa-angle-left"></i>
-                  </p>
-                </a>
-                <ul class="nav nav-treeview">
-                  <li class="nav-item">
-                    <a href="<?php echo $URL; ?>/usuarios/index.php" class="nav-link">
-                      <i class="far fa-circle nav-icon"></i>
-                      <p>Listado de usuarios</p>
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a href="<?php echo $URL; ?>/usuarios/create.php" class="nav-link">
-                      <i class="far fa-circle nav-icon"></i>
-                      <p>Creación de Usuarios</p>
-                    </a>
-                  </li>
-                </ul>
-              </li>
+             <li class="nav-item">
+              <a href="#" class="nav-link active">
+                <i class="nav-icon fas fa-users"></i>
+                <p>
+                  Usuarios
+                  <i class="right fas fa-angle-left"></i>
+                </p>
+              </a>
+              <ul class="nav nav-treeview">
+                <li class="nav-item">
+                  <a href="<?php echo $URL; ?>/usuarios/index.php" class="nav-link">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>Listado de usuarios</p>
+                  </a>
+                </li>
+               
+              </ul>
+            </li>
 
-              <!--roles-->
-              <li class="nav-item">
-                <a href="#" class="nav-link active">
-                  <i class="nav-icon fas fa-edit"></i>
-                  <p>
-                    Roles
-                    <i class="right fas fa-angle-left"></i>
-                  </p>
-                </a>
-                <ul class="nav nav-treeview">
-                  <li class="nav-item">
-                    <a href="<?php echo $URL; ?>/roles" class="nav-link">
-                      <i class="far fa-circle nav-icon"></i>
-                      <p>Listado de Roles</p>
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a href="<?php echo $URL; ?>/roles/create.php" class="nav-link">
-                      <i class="far fa-circle nav-icon"></i>
-                      <p>Creación de Roles</p>
-                    </a>
-                  </li>
-                </ul>
-              </li>
-              <!-- Fin de Roles -->
+            <!--roles--
+            <li class="nav-item">
+              <a href="#" class="nav-link active">
+                <i class="nav-icon fas fa-edit"></i>
+                <p>
+                  Roles
+                  <i class="right fas fa-angle-left"></i>
+                </p>
+              </a>
+             <ul class="nav nav-treeview">
+                <li class="nav-item">
+                  <a href="<?php echo $URL; ?>/roles" class="nav-link">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>Listado de Roles</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="<?php echo $URL; ?>/roles/create.php" class="nav-link">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>Creación de Roles</p>
+                  </a>
+                </li>
+              </ul>
+            </li>
+             Fin de Roles -->
+
               <!--areas-->
-              <li class="nav-item">
-                <a href="#" class="nav-link active">
-                  <i class="nav-icon fas fa-map-marker-alt"></i>
-                  <p>
-                    Areas
-                    <i class="right fas fa-angle-left"></i>
-                  </p>
-                </a>
-                <ul class="nav nav-treeview">
-                  <li class="nav-item">
-                    <a href="<?php echo $URL; ?>/areas/" class="nav-link">
-                      <i class="far fa-circle nav-icon"></i>
-                      <p>Listado de áreas</p>
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a href="<?php echo $URL; ?>/areas/create.php" class="nav-link">
-                      <i class="far fa-circle nav-icon"></i>
-                      <p>Registrar área</p>
-                    </a>
-                  </li>
-                </ul>
-              </li>
-              <!-- Fin de Areas -->
+            <li class="nav-item">
+              <a href="#" class="nav-link active">
+                <i class="nav-icon fas fa-map-marker-alt"></i>
+                <p>
+                  Areas
+                  <i class="right fas fa-angle-left"></i>
+                </p>
+              </a>
+              <ul class="nav nav-treeview">
+                <li class="nav-item">
+                  <a href="<?php echo $URL; ?>/areas/" class="nav-link">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>Listado de áreas</p>
+                  </a>
+                </li>
+                <!-- se muestra la creacion de area en el incio 
+                <li class="nav-item">
+                  <a href="<?php echo $URL; ?>/areas/create.php" class="nav-link">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>Registrar área</p>
+                  </a>
+                </li>
+                -- Fin de Areas -->
+              </ul>
+            </li>
+            <!-- Fin de Areas -->
             <?php } ?>
 
             <!--equipos-->
@@ -178,18 +176,18 @@
                     <p>Listado de Equipos</p>
                   </a>
                 </li>
-                <?php if (in_array($rol_sesion, ['administrador', 'encargado de inventario'], true)) { ?>
-                  <li class="nav-item">
-                    <a href="<?php echo $URL; ?>/equipos/create.php" class="nav-link">
-                      <i class="far fa-circle nav-icon"></i>
-                      <p>Creación de Equipos</p>
-                    </a>
-                  </li>
+                <?php if ($rol_sesion === 'administrador') { ?>
+                <li class="nav-item">
+                  <a href="<?php echo $URL; ?>/equipos/create.php" class="nav-link">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>Creación de Equipos</p>
+                  </a>
+                </li>
                 <?php } ?>
               </ul>
             </li>
             <!-- Fin de Equipos -->
-            <!--impresoras-->
+             <!--impresoras-->
             <li class="nav-item">
               <a href="#" class="nav-link active">
                 <i class="nav-icon fas fa-print"></i>
@@ -205,18 +203,18 @@
                     <p>Listado de Impresoras</p>
                   </a>
                 </li>
-                <?php if (in_array($rol_sesion, ['administrador', 'encargado de inventario'], true)) { ?>
-                  <li class="nav-item">
-                    <a href="<?php echo $URL; ?>/impresoras/create.php" class="nav-link">
-                      <i class="far fa-circle nav-icon"></i>
-                      <p>Creación de Impresoras</p>
-                    </a>
-                  </li>
+                <?php if ($rol_sesion === 'administrador') { ?>
+                <li class="nav-item">
+                  <a href="<?php echo $URL; ?>/impresoras/create.php" class="nav-link">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>Creación de Impresoras</p>
+                  </a>
+                </li>
                 <?php } ?>
               </ul>
             </li>
             <!-- Fin de Impresoras -->
-            <!--mantenimiento-->
+             <!--mantenimiento-->
             <li class="nav-item">
               <a href="#" class="nav-link active">
                 <i class="nav-icon fas fa-tools"></i>
@@ -227,21 +225,15 @@
               </a>
               <ul class="nav nav-treeview">
                 <li class="nav-item">
-                  <a href="<?php echo $URL; ?>/mantenimiento" class="nav-link"
-                    style="display: flex; align-items: center;">
-                    <i class="far fa-circle nav-icon" style="flex-shrink: 0;"></i>
-                    <p style="flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
-                      Listado de Mantenimiento
-                    </p>
+                  <a href="<?php echo $URL; ?>/mantenimiento" class="nav-link">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>Listado de Mantenimiento</p>
                   </a>
                 </li>
                 <li class="nav-item">
-                  <a href="<?php echo $URL; ?>/mantenimiento/create.php" class="nav-link"
-                    style="display: flex; align-items: center;">
-                    <i class="far fa-circle nav-icon" style="flex-shrink: 0;"></i>
-                    <p style="flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
-                      Creación de Mantenimiento
-                    </p>
+                  <a href="<?php echo $URL; ?>/mantenimiento/create.php" class="nav-link">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>Creación de Mantenimiento</p>
                   </a>
                 </li>
               </ul>

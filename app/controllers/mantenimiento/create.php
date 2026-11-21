@@ -1,6 +1,12 @@
 <?php
 include('../../config.php');
-include('../../layout/sesion.php');
+require_once __DIR__ . '/../../../layout/sesion.php';
+require_once '../../notificaciones.php';
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: ' . $URL . '/mantenimiento/create.php');
+    exit;
+}
 
 $id_equipo = ($_POST['id_equipo'] ?? '') === '' ? null : (int) $_POST['id_equipo'];
 $id_impresora = ($_POST['id_impresora'] ?? '') === '' ? null : (int) $_POST['id_impresora'];
@@ -32,15 +38,41 @@ $sentencia->bindParam(':observacion', $observacion);
 
 
 
-if ($sentencia->execute()) {
-    if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
-    $_SESSION['mensaje'] = 'Se registró el mantenimiento correctamente';
+try {
+    $pdo->beginTransaction();
+    $sentencia->execute();
+    $id_mantenimiento = (int) $pdo->lastInsertId();
+
+    $notificaciones_activas = true;
+    try {
+        notificarRoles(
+            $pdo,
+            ['administrador', 'encargado de inventario'],
+            (int) $id_usuario,
+            $id_mantenimiento,
+            'nuevo_mantenimiento',
+            'Nuevo reporte de mantenimiento',
+            $nombres_sesion . ' registró un nuevo reporte de mantenimiento.'
+        );
+    } catch (PDOException $error_notificaciones) {
+        $notificaciones_activas = false;
+        error_log('La notificación del nuevo mantenimiento no está disponible: ' . $error_notificaciones->getMessage());
+    }
+
+    $pdo->commit();
+    $_SESSION['mensaje'] = $notificaciones_activas
+        ? 'Se registró el mantenimiento y se notificó al equipo responsable.'
+        : 'Se registró el mantenimiento. Aplica la migración de notificaciones para activar los avisos.';
     $_SESSION['icono'] = 'success';
     header('Location: ' . $URL . '/mantenimiento/');
-
-} else {
-    if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
-    $_SESSION['mensaje'] = 'No se pudo registrar el mantenimiento';
+    exit;
+} catch (Throwable $e) {
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
+    error_log('Error al registrar mantenimiento y notificaciones: ' . $e->getMessage());
+    $_SESSION['mensaje'] = 'No se pudo registrar el mantenimiento.';
     $_SESSION['icono'] = 'error';
     header('Location: ' . $URL . '/mantenimiento/create.php');
+    exit;
 }

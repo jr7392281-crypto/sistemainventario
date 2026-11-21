@@ -82,6 +82,35 @@ if (!empty($mantenimiento['codigo_equipo'])) {
                                         </div>
                                     </div>
 
+                                    <?php if ($estado_disponible) { ?>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Estado del reporte:</label>
+                                                <select name="estado" class="form-control" required>
+                                                    <?php
+                                                    $estados = [
+                                                        'reportado' => 'Reportado',
+                                                        'en_proceso' => 'En proceso',
+                                                        'resuelto' => 'Resuelto',
+                                                    ];
+                                                    foreach ($estados as $valor_estado => $etiqueta_estado) {
+                                                        $seleccionado = ($mantenimiento['estado'] ?? 'reportado') === $valor_estado
+                                                            ? 'selected'
+                                                            : '';
+                                                    ?>
+                                                        <option value="<?php echo htmlspecialchars($valor_estado, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $seleccionado; ?>>
+                                                            <?php echo htmlspecialchars($etiqueta_estado, ENT_QUOTES, 'UTF-8'); ?>
+                                                        </option>
+                                                    <?php } ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    <?php } else { ?>
+                                        <div class="col-12">
+                                            <p class="text-muted">Aplica la migración de notificaciones para habilitar el seguimiento por estados.</p>
+                                        </div>
+                                    <?php } ?>
+
                                     <div class="col-md-12">
                                         <div class="form-group">
                                             <label>Observación:</label>

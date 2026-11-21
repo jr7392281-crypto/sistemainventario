@@ -1,5 +1,6 @@
 <?php
 $id_mantenimiento_get = (int) ($_GET['id'] ?? 0);
+$estado_disponible = (bool) $pdo->query("SHOW COLUMNS FROM tb_mantenimientos LIKE 'estado'")->fetch(PDO::FETCH_ASSOC);
 
 $sql = "SELECT m.*,
                u.nombres AS usuario,

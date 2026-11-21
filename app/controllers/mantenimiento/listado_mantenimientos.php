@@ -1,8 +1,12 @@
 <?php
+$columna_estado = $pdo->query("SHOW COLUMNS FROM tb_mantenimientos LIKE 'estado'")->fetch(PDO::FETCH_ASSOC);
+$campo_estado = $columna_estado ? 'm.estado' : "'reportado'";
+
 $sql_mantenimientos = "SELECT
     m.id_mantenimiento,
     m.fecha,
     m.tipo_mantenimiento,
+    $campo_estado AS estado,
     m.observacion,
     u.nombres AS usuario,
     e.codigo AS codigo_equipo,
