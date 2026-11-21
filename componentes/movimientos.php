@@ -1,7 +1,6 @@
 <?php
 include('../app/config.php');
 include('../layout/sesion.php');
-require_once '../app/componentes_csrf.php';
 
 $componentesConsulta = $pdo->query(
     'SELECT id_componente, codigo, nombre, stock_actual
@@ -30,7 +29,6 @@ $movimientosConsulta = $pdo->query(
      LIMIT 100'
 );
 $movimientos = $movimientosConsulta->fetchAll(PDO::FETCH_ASSOC);
-$csrfToken = csrfComponentes();
 
 include('../layout/parte1.php');
 ?>
@@ -49,7 +47,6 @@ include('../layout/parte1.php');
                 <div class="card card-primary">
                     <div class="card-header"><h3 class="card-title">Registrar componente usado en un mantenimiento</h3></div>
                     <form action="../app/controllers/componentes/movimiento.php" method="post">
-                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6 form-group">

@@ -1,17 +1,9 @@
 <?php
 include('../../config.php');
 require_once __DIR__ . '/../../../layout/sesion.php';
-require_once '../../componentes_csrf.php';
 require_once '../../componentes_stock.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ' . $URL . '/componentes/movimientos.php');
-    exit;
-}
-
-if (!validarCsrfComponentes($_POST['csrf_token'] ?? null)) {
-    $_SESSION['mensaje'] = 'La solicitud venció. Inténtalo nuevamente.';
-    $_SESSION['icono'] = 'error';
     header('Location: ' . $URL . '/componentes/movimientos.php');
     exit;
 }

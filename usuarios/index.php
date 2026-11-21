@@ -453,8 +453,7 @@ if (isset($_SESSION['mensaje'])) {
 
                               </div>
 
-                              <div class="form-group grupo-area-editar"
-                                style="display:none;">
+                              <div class="form-group grupo-area-editar">
 
                                 <label>
                                   <i class="fas fa-building"></i>
@@ -462,7 +461,8 @@ if (isset($_SESSION['mensaje'])) {
                                 </label>
 
                                 <select name="id_area"
-                                  class="form-control selector-area-editar">
+                                  class="form-control selector-area-editar"
+                                  required>
 
                                   <option value="">Seleccione un área</option>
 
@@ -773,7 +773,7 @@ if (isset($_SESSION['mensaje'])) {
 
           </div>
 
-          <div class="form-group" id="contenedorArea" style="display:none;">
+          <div class="form-group" id="contenedorArea">
 
             <label>
               <i class="fas fa-building"></i>
@@ -783,7 +783,7 @@ if (isset($_SESSION['mensaje'])) {
             <select name="id_area"
               id="id_area"
               class="form-control"
-              disabled>
+              required>
 
               <option value="">Seleccione un área</option>
 
@@ -970,25 +970,11 @@ if (isset($_SESSION['mensaje'])) {
       }
 
 
-      // SOLAMENTE PERSONAL NECESITA ÁREA
+      // Todos los roles requieren un área.
 
-      if (nombreRol === 'personal' && selectorRol.value !== '') {
-
-        contenedorArea.style.display = 'block';
-
-        selectorArea.disabled = false;
-        selectorArea.required = true;
-
-      } else {
-
-        contenedorArea.style.display = 'none';
-
-        selectorArea.disabled = true;
-        selectorArea.required = false;
-
-        selectorArea.value = '';
-
-      }
+      contenedorArea.style.display = 'block';
+      selectorArea.disabled = false;
+      selectorArea.required = true;
 
     }
 
@@ -1087,32 +1073,12 @@ if (isset($_SESSION['mensaje'])) {
 
 
       // ==========================================
-      // CONTROLAR ÁREA SEGÚN EL ROL
+      // Todos los roles requieren un área.
       // ==========================================
 
-      if (nombreRol === 'personal' && selectRol.value !== '') {
-
-        // PERSONAL: ÁREA OBLIGATORIA
-
-        grupoArea.style.display = 'block';
-
-        selectArea.disabled = false;
-
-        selectArea.required = true;
-
-      } else {
-
-        // LOS DEMÁS ROLES NO NECESITAN ÁREA
-
-        grupoArea.style.display = 'none';
-
-        selectArea.required = false;
-
-        selectArea.disabled = true;
-
-        selectArea.value = '';
-
-      }
+      grupoArea.style.display = 'block';
+      selectArea.disabled = false;
+      selectArea.required = true;
 
     }
 

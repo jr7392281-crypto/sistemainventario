@@ -16,14 +16,14 @@ $password_repeat = $_POST['password_repeat'] ?? '';
 if ($id_area < 1) {
     $_SESSION['mensaje'] = 'Debes seleccionar un área.';
     $_SESSION['icono'] = 'error';
-    header('Location: ' . $URL . '/usuarios/update.php?id=' . $id_usuario);
+    header('Location: ' . $URL . '/usuarios/');
     exit;
 }
 
 if ($password_user !== '' && $password_user !== $password_repeat) {
     $_SESSION['mensaje'] = 'Las contraseñas no coinciden.';
     $_SESSION['icono'] = 'error';
-    header('Location: ' . $URL . '/usuarios/update.php?id=' . $id_usuario);
+    header('Location: ' . $URL . '/usuarios/');
     exit;
 }
 
@@ -60,7 +60,7 @@ if ($sentencia->execute()) {
 } else {
     $_SESSION['mensaje'] = 'No se pudo actualizar el usuario.';
     $_SESSION['icono'] = 'error';
-    header('Location: ' . $URL . '/usuarios/update.php?id=' . $id_usuario);
+    header('Location: ' . $URL . '/usuarios/');
 }
 exit;
 ?>

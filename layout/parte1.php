@@ -32,6 +32,56 @@
 
   <div class="wrapper">
 
+  
+    <?php
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+      session_start();
+    }
+
+    if (empty($_SESSION['csrf_notificaciones'])) {
+      $_SESSION['csrf_notificaciones'] = bin2hex(random_bytes(32));
+    }
+
+    $notificaciones_recientes = [];
+    $notificaciones_no_leidas = 0;
+
+    $uri_actual = $_SERVER['REQUEST_URI'] ?? '';
+    $ruta_actual = parse_url($uri_actual, PHP_URL_PATH) ?: '';
+    $ruta_base = rtrim(parse_url($URL, PHP_URL_PATH) ?: '', '/');
+    if ($ruta_base !== '' && strpos($ruta_actual, $ruta_base) === 0) {
+      $ruta_actual = substr($ruta_actual, strlen($ruta_base));
+    }
+    if ($ruta_actual === '' || $ruta_actual[0] !== '/') {
+      $ruta_actual = '/index.php';
+    }
+    $consulta_actual = parse_url($uri_actual, PHP_URL_QUERY);
+    $retorno_notificaciones = $ruta_actual . ($consulta_actual ? '?' . $consulta_actual : '');
+
+    if (isset($pdo, $id_usuario_sesion) && $pdo instanceof PDO) {
+      try {
+        $consulta_no_leidas = $pdo->prepare(
+          'SELECT COUNT(*) FROM tb_notificaciones
+           WHERE id_usuario_destino = :id_usuario AND leida = 0'
+        );
+        $consulta_no_leidas->execute([':id_usuario' => $id_usuario_sesion]);
+        $notificaciones_no_leidas = (int) $consulta_no_leidas->fetchColumn();
+
+        $consulta_notificaciones = $pdo->prepare(
+          'SELECT n.id_notificacion, n.id_mantenimiento, n.titulo,
+                  n.mensaje, n.leida, n.fecha_registro
+           FROM tb_notificaciones AS n
+           WHERE n.id_usuario_destino = :id_usuario
+           ORDER BY n.fecha_registro DESC, n.id_notificacion DESC
+           LIMIT 20'
+        );
+        $consulta_notificaciones->execute([':id_usuario' => $id_usuario_sesion]);
+        $notificaciones_recientes = $consulta_notificaciones->fetchAll(PDO::FETCH_ASSOC);
+      } catch (Throwable $e) {
+        error_log('No se pudieron cargar las notificaciones: ' . $e->getMessage());
+      }
+    }
+    ?>
+
     <!-- Navbar -->
     <nav class="main-header navbar navbar-expand navbar-white navbar-light">
       <!-- Left navbar links -->
@@ -46,7 +96,82 @@
 
       <!-- Right navbar links -->
       <ul class="navbar-nav ml-auto">
-        <!-- Navbar Search -->
+        <li class="nav-item dropdown">
+          <a class="nav-link" data-toggle="dropdown" href="#" role="button"
+            aria-label="Notificaciones" aria-haspopup="true" aria-expanded="false">
+            <i class="far fa-bell"></i>
+            <?php if ($notificaciones_no_leidas > 0) { ?>
+              <span class="badge badge-danger navbar-badge">
+                <?php echo $notificaciones_no_leidas > 99 ? '99+' : $notificaciones_no_leidas; ?>
+              </span>
+            <?php } ?>
+          </a>
+          <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right p-0">
+            <div class="px-3 py-2 d-flex justify-content-between align-items-center">
+              <strong>Notificaciones</strong>
+              <span class="text-muted small"><?php echo $notificaciones_no_leidas; ?> sin leer</span>
+            </div>
+            <?php if ($notificaciones_no_leidas > 0) { ?>
+              <form action="<?php echo $URL; ?>/app/controllers/notificaciones/marcar_leida.php"
+                method="post" class="px-3 pb-2 mb-0 text-right">
+                <input type="hidden" name="csrf_token"
+                  value="<?php echo htmlspecialchars($_SESSION['csrf_notificaciones'], ENT_QUOTES, 'UTF-8'); ?>">
+                <input type="hidden" name="marcar_todas" value="1">
+                <input type="hidden" name="return_to"
+                  value="<?php echo htmlspecialchars($retorno_notificaciones, ENT_QUOTES, 'UTF-8'); ?>">
+                <button type="submit" class="btn btn-sm btn-link p-0">Marcar todas como leídas</button>
+              </form>
+            <?php } ?>
+            <div class="dropdown-divider my-0"></div>
+            <div style="max-height: 65vh; overflow-y: auto;">
+
+            <?php if (empty($notificaciones_recientes)) { ?>
+              <div class="dropdown-item text-muted text-center py-3">
+                No tienes notificaciones
+              </div>
+            <?php } else { ?>
+              <?php foreach ($notificaciones_recientes as $notificacion) { ?>
+                <div class="dropdown-item text-wrap py-2 <?php echo (int) $notificacion['leida'] === 0 ? 'bg-light' : ''; ?>">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <strong class="mr-2">
+                      <i class="fas fa-bell mr-1 <?php echo (int) $notificacion['leida'] === 0 ? 'text-primary' : 'text-muted'; ?>"></i>
+                      <?php echo htmlspecialchars($notificacion['titulo'], ENT_QUOTES, 'UTF-8'); ?>
+                    </strong>
+                    <small class="text-muted text-nowrap">
+                      <?php echo htmlspecialchars(date('d/m H:i', strtotime($notificacion['fecha_registro'])), ENT_QUOTES, 'UTF-8'); ?>
+                    </small>
+                  </div>
+                  <div class="text-muted text-sm text-wrap">
+                    <?php echo htmlspecialchars($notificacion['mensaje'], ENT_QUOTES, 'UTF-8'); ?>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center mt-1">
+                    <?php if (!empty($notificacion['id_mantenimiento'])) { ?>
+                      <a class="small" href="<?php echo $URL; ?>/mantenimiento/show.php?id=<?php echo (int) $notificacion['id_mantenimiento']; ?>">
+                        Ver mantenimiento
+                      </a>
+                    <?php } else { ?>
+                      <span></span>
+                    <?php } ?>
+                    <?php if ((int) $notificacion['leida'] === 0) { ?>
+                      <form action="<?php echo $URL; ?>/app/controllers/notificaciones/marcar_leida.php"
+                        method="post" class="mb-0">
+                        <input type="hidden" name="csrf_token"
+                          value="<?php echo htmlspecialchars($_SESSION['csrf_notificaciones'], ENT_QUOTES, 'UTF-8'); ?>">
+                        <input type="hidden" name="id_notificacion"
+                          value="<?php echo (int) $notificacion['id_notificacion']; ?>">
+                        <input type="hidden" name="return_to"
+                          value="<?php echo htmlspecialchars($retorno_notificaciones, ENT_QUOTES, 'UTF-8'); ?>">
+                        <button type="submit" class="btn btn-sm btn-outline-secondary py-0">Marcar leída</button>
+                      </form>
+                    <?php } ?>
+                  </div>
+                </div>
+                <div class="dropdown-divider"></div>
+              <?php } ?>
+            <?php } ?>
+            </div>
+          </div>
+        </li>
 
         <li class="nav-item">
           <a class="nav-link" data-widget="fullscreen" href="#" role="button">
@@ -62,9 +187,9 @@
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
       <!-- Brand Logo -->
       <a href="<?php echo $URL; ?>" class="brand-link">
-        <img src="<?php echo $URL; ?> /public/images/folder.png" alt="AdminLTE Logo"
+        <img src="<?php echo $URL; ?>/public/images/folder.png" alt="AdminLTE Logo"
           class="brand-image img-circle elevation-3" style="opacity: .8">
-        <span class="brand-text font-weight-light">SIS INV MAN</span>
+        <span class="brand-text font-weight-light">SIS INV MANT</span>
       </a>
 
       <!-- Sidebar -->
@@ -86,78 +211,68 @@
                with font-awesome or any other icon font library -->
 
             <?php if ($rol_sesion === 'administrador') { ?>
-             <li class="nav-item">
-              <a href="#" class="nav-link active">
-                <i class="nav-icon fas fa-users"></i>
-                <p>
-                  Usuarios
-                  <i class="right fas fa-angle-left"></i>
-                </p>
-              </a>
-              <ul class="nav nav-treeview">
-                <li class="nav-item">
-                  <a href="<?php echo $URL; ?>/usuarios/index.php" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Listado de usuarios</p>
-                  </a>
-                </li>
-               
-              </ul>
-            </li>
+              <li class="nav-item">
+                <a href="#" class="nav-link active">
+                  <i class="nav-icon fas fa-users"></i>
+                  <p>
+                    Usuarios
+                    <i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="<?php echo $URL; ?>/usuarios/index.php" class="nav-link">
+                      <i class="far fa-circle nav-icon"></i>
+                      <p>Listado de usuarios</p>
+                    </a>
+                  </li>
+                </ul>
+              </li>
 
-            <!--roles--
-            <li class="nav-item">
-              <a href="#" class="nav-link active">
-                <i class="nav-icon fas fa-edit"></i>
-                <p>
-                  Roles
-                  <i class="right fas fa-angle-left"></i>
-                </p>
-              </a>
-             <ul class="nav nav-treeview">
-                <li class="nav-item">
-                  <a href="<?php echo $URL; ?>/roles" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Listado de Roles</p>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a href="<?php echo $URL; ?>/roles/create.php" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Creación de Roles</p>
-                  </a>
-                </li>
-              </ul>
-            </li>
-             Fin de Roles -->
-
+              <!--roles-->
+              <li class="nav-item">
+                <a href="#" class="nav-link active">
+                  <i class="nav-icon fas fa-edit"></i>
+                  <p>
+                    Roles
+                    <i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="<?php echo $URL; ?>/roles" class="nav-link">
+                      <i class="far fa-circle nav-icon"></i>
+                      <p>Listado de Roles</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="<?php echo $URL; ?>/roles/create.php" class="nav-link">
+                      <i class="far fa-circle nav-icon"></i>
+                      <p>Creación de Roles</p>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              <!-- Fin de Roles -->
               <!--areas-->
-            <li class="nav-item">
-              <a href="#" class="nav-link active">
-                <i class="nav-icon fas fa-map-marker-alt"></i>
-                <p>
-                  Areas
-                  <i class="right fas fa-angle-left"></i>
-                </p>
-              </a>
-              <ul class="nav nav-treeview">
-                <li class="nav-item">
-                  <a href="<?php echo $URL; ?>/areas/" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Listado de áreas</p>
-                  </a>
-                </li>
-                <!-- se muestra la creacion de area en el incio 
-                <li class="nav-item">
-                  <a href="<?php echo $URL; ?>/areas/create.php" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Registrar área</p>
-                  </a>
-                </li>
-                -- Fin de Areas -->
-              </ul>
-            </li>
-            <!-- Fin de Areas -->
+              <li class="nav-item">
+                <a href="#" class="nav-link active">
+                  <i class="nav-icon fas fa-map-marker-alt"></i>
+                  <p>
+                    Areas
+                    <i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="<?php echo $URL; ?>/areas/" class="nav-link">
+                      <i class="far fa-circle nav-icon"></i>
+                      <p>Listado de áreas</p>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              <!-- Fin de Areas -->
             <?php } ?>
 
             <!--equipos-->
@@ -176,18 +291,18 @@
                     <p>Listado de Equipos</p>
                   </a>
                 </li>
-                <?php if ($rol_sesion === 'administrador') { ?>
-                <li class="nav-item">
-                  <a href="<?php echo $URL; ?>/equipos/create.php" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Creación de Equipos</p>
-                  </a>
-                </li>
+                <?php if (in_array($rol_sesion, ['administrador', 'encargado de inventario'], true)) { ?>
+                  <li class="nav-item">
+                    <a href="<?php echo $URL; ?>/equipos/create.php" class="nav-link">
+                      <i class="far fa-circle nav-icon"></i>
+                      <p>Creación de Equipos</p>
+                    </a>
+                  </li>
                 <?php } ?>
               </ul>
             </li>
             <!-- Fin de Equipos -->
-             <!--impresoras-->
+            <!--impresoras-->
             <li class="nav-item">
               <a href="#" class="nav-link active">
                 <i class="nav-icon fas fa-print"></i>
@@ -203,18 +318,53 @@
                     <p>Listado de Impresoras</p>
                   </a>
                 </li>
-                <?php if ($rol_sesion === 'administrador') { ?>
-                <li class="nav-item">
-                  <a href="<?php echo $URL; ?>/impresoras/create.php" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Creación de Impresoras</p>
-                  </a>
-                </li>
+                <?php if (in_array($rol_sesion, ['administrador', 'encargado de inventario'], true)) { ?>
+                  <li class="nav-item">
+                    <a href="<?php echo $URL; ?>/impresoras/create.php" class="nav-link">
+                      <i class="far fa-circle nav-icon"></i>
+                      <p>Creación de Impresoras</p>
+                    </a>
+                  </li>
                 <?php } ?>
               </ul>
             </li>
             <!-- Fin de Impresoras -->
-             <!--mantenimiento-->
+
+            <?php if (in_array($rol_sesion, ['administrador', 'super administrador', 'encargado de inventario', 'abastecedor', 'soporte tecnico'], true)) { ?>
+              <li class="nav-item">
+                <a href="#" class="nav-link active">
+                  <i class="nav-icon fas fa-boxes"></i>
+                  <p>
+                    Componentes
+                    <i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="<?php echo $URL; ?>/componentes/" class="nav-link">
+                      <i class="far fa-circle nav-icon"></i>
+                      <p>Stock de componentes</p>
+                    </a>
+                  </li>
+                  <?php if (in_array($rol_sesion, ['administrador', 'super administrador', 'abastecedor'], true)) { ?>
+                    <li class="nav-item">
+                      <a href="<?php echo $URL; ?>/componentes/create.php" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Registrar componente</p>
+                      </a>
+                    </li>
+                  <?php } ?>
+                  <li class="nav-item">
+                    <a href="<?php echo $URL; ?>/componentes/movimientos.php" class="nav-link">
+                      <i class="far fa-circle nav-icon"></i>
+                      <p>Uso de componentes</p>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+            <?php } ?>
+
+            <!--mantenimiento-->
             <li class="nav-item">
               <a href="#" class="nav-link active">
                 <i class="nav-icon fas fa-tools"></i>
@@ -225,15 +375,21 @@
               </a>
               <ul class="nav nav-treeview">
                 <li class="nav-item">
-                  <a href="<?php echo $URL; ?>/mantenimiento" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Listado de Mantenimiento</p>
+                  <a href="<?php echo $URL; ?>/mantenimiento" class="nav-link"
+                    style="display: flex; align-items: center;">
+                    <i class="far fa-circle nav-icon" style="flex-shrink: 0;"></i>
+                    <p style="flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+                      Listado de Mantenimiento
+                    </p>
                   </a>
                 </li>
                 <li class="nav-item">
-                  <a href="<?php echo $URL; ?>/mantenimiento/create.php" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Creación de Mantenimiento</p>
+                  <a href="<?php echo $URL; ?>/mantenimiento/create.php" class="nav-link"
+                    style="display: flex; align-items: center;">
+                    <i class="far fa-circle nav-icon" style="flex-shrink: 0;"></i>
+                    <p style="flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+                      Creación de Mantenimiento
+                    </p>
                   </a>
                 </li>
               </ul>
