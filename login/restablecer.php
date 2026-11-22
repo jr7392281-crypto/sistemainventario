@@ -26,6 +26,7 @@ if (is_string($token) && preg_match('/^[a-f0-9]{64}$/', $token)) {
     <title>Crear nueva contraseña</title>
     <link rel="stylesheet" href="../public/templates/AdminLTE-3.2.0/plugins/fontawesome-free/css/all.min.css">
     <link rel="stylesheet" href="../public/templates/AdminLTE-3.2.0/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="../public/css/sistema.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="hold-transition login-page">

@@ -1,0 +1,161 @@
+/* Ajustes compartidos para pantallas pequeñas. */
+html,
+body {
+    min-width: 320px;
+}
+
+.content-wrapper,
+.main-footer,
+.card,
+.card-body {
+    min-width: 0;
+}
+
+.content-wrapper {
+    overflow-x: hidden;
+}
+
+.content-header h1 {
+    overflow-wrap: anywhere;
+}
+
+.table-responsive {
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+}
+
+.dataTables_wrapper {
+    width: 100%;
+    min-width: 0;
+}
+
+.table th,
+.table td {
+    vertical-align: middle;
+}
+
+.modal-body {
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 767.98px) {
+    .content-header {
+        padding: .75rem .25rem;
+    }
+
+    .content-header h1 {
+        font-size: 1.4rem;
+        line-height: 1.25;
+    }
+
+    .content {
+        padding: 0 .25rem;
+    }
+
+    .card-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: .5rem;
+    }
+
+    .card-title {
+        float: none;
+        max-width: 100%;
+        white-space: normal;
+    }
+
+    .card-tools {
+        float: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: .35rem;
+        max-width: 100%;
+        margin-left: auto;
+    }
+
+    .card-tools .btn,
+    .card-footer .btn {
+        white-space: normal;
+        margin-bottom: .25rem;
+    }
+
+    .dataTables_wrapper .row {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter {
+        width: 100%;
+        text-align: left;
+        margin-bottom: .5rem;
+    }
+
+    .dataTables_wrapper .dataTables_filter input {
+        max-width: calc(100% - 6rem);
+        margin-left: .25rem;
+    }
+
+    .dt-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .25rem;
+        margin-bottom: .5rem;
+    }
+
+    .modal-dialog,
+    .modal-dialog.modal-lg {
+        width: auto;
+        max-width: none;
+        margin: .5rem;
+    }
+
+    .modal-content {
+        max-height: calc(100vh - 1rem);
+    }
+
+    .modal-body {
+        overflow-y: auto;
+    }
+
+    .dropdown-menu-lg {
+        width: calc(100vw - .75rem);
+        max-width: 360px;
+    }
+
+    .login-page {
+        padding: .75rem;
+    }
+
+    .login-box {
+        width: 100%;
+        max-width: 360px;
+        margin: auto;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .card-tools {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .card-tools .btn {
+        flex: 1 1 auto;
+    }
+
+    .card-footer .btn {
+        width: 100%;
+        margin-right: 0;
+    }
+
+    .table-responsive table {
+        min-width: 600px;
+    }
+
+    .main-header .dropdown-menu-lg {
+        right: .25rem;
+        left: auto;
+    }
+}

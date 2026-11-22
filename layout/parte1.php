@@ -13,6 +13,7 @@
     href="<?php echo $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/fontawesome-free/css/all.min.css">
   <!-- Theme style -->
   <link rel="stylesheet" href="<?php echo $URL; ?>/public/templates/AdminLTE-3.2.0/dist/css/adminlte.min.css">
+  <link rel="stylesheet" href="<?php echo $URL; ?>/public/css/sistema.css">
   <!-- jQuery -->
   <script src="<?php echo $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/jquery/jquery.min.js"></script>
   <!-- Librería SweetAlert -->
@@ -91,7 +92,7 @@
         <li class="nav-item">
           <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
         </li>
-        <li class="nav-item-d-none-d-sm-inline-block">
+        <li class="nav-item d-none d-sm-inline-block">
           <a href="#" class="nav-link">SISTEMA DE INVENTARIO Y MANTENIMIENTO</a>
         </li>
       </ul>

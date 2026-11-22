@@ -69,6 +69,7 @@ include('../app/controllers/areas/listado_de_areas.php');
 
                         <!-- CARD BODY -->
                         <div class="card-body" style="display:block">
+                            <div class="table-responsive">
 
                             <table id="example1" class="table table-bordered table-striped">
 
@@ -142,6 +143,7 @@ include('../app/controllers/areas/listado_de_areas.php');
                                 </tfoot>
 
                             </table>
+                            </div>
 
                         </div>
                         <!-- /.card-body -->
