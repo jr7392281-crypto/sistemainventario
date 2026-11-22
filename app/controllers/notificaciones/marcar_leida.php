@@ -7,12 +7,20 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+$es_ajax = ($_POST['ajax'] ?? '') === '1';
 $token = $_POST['csrf_token'] ?? '';
-if (
-    !is_string($token) ||
-    empty($_SESSION['csrf_notificaciones']) ||
-    !hash_equals($_SESSION['csrf_notificaciones'], $token)
-) {
+$token_valido = is_string($token)
+    && !empty($_SESSION['csrf_notificaciones'])
+    && hash_equals($_SESSION['csrf_notificaciones'], $token);
+
+if (!$token_valido) {
+    if ($es_ajax) {
+        http_response_code(403);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['ok' => false, 'mensaje' => 'La solicitud venció. Inténtalo nuevamente.']);
+        exit;
+    }
+
     $_SESSION['mensaje'] = 'La solicitud venció. Inténtalo nuevamente.';
     $_SESSION['icono'] = 'error';
     header('Location: ' . $URL . '/index.php');
@@ -45,10 +53,30 @@ try {
         ]);
     }
 
-    $_SESSION['mensaje'] = 'Notificaciones actualizadas.';
-    $_SESSION['icono'] = 'success';
+    if ($es_ajax) {
+        $consulta_pendientes = $pdo->prepare(
+            'SELECT COUNT(*) FROM tb_notificaciones
+             WHERE id_usuario_destino = :id_usuario AND leida = 0'
+        );
+        $consulta_pendientes->execute([':id_usuario' => $id_usuario_sesion]);
+
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode([
+            'ok' => true,
+            'no_leidas' => (int) $consulta_pendientes->fetchColumn()
+        ]);
+        exit;
+    }
 } catch (Throwable $e) {
     error_log('Error al marcar notificación: ' . $e->getMessage());
+
+    if ($es_ajax) {
+        http_response_code(500);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['ok' => false, 'mensaje' => 'No se pudo actualizar la notificación.']);
+        exit;
+    }
+
     $_SESSION['mensaje'] = 'No se pudo actualizar la notificación.';
     $_SESSION['icono'] = 'error';
 }
@@ -69,6 +97,7 @@ if (
     $ruta_retorno = '/index.php';
     $consulta_retorno = '';
 }
+
 $destino = rtrim($URL, '/') . $ruta_retorno;
 if ($consulta_retorno !== '') {
     $destino .= '?' . str_replace(["\r", "\n"], '', $consulta_retorno);

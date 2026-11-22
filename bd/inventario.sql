@@ -150,9 +150,11 @@ CREATE TABLE `tb_mantenimientos` (
   `id_equipo` int(11) DEFAULT NULL,
   `id_impresora` int(11) DEFAULT NULL,
   `id_usuario` int(11) NOT NULL,
+  `id_tecnico_asignado` int(11) DEFAULT NULL,
   `fecha` date NOT NULL,
   `tipo_mantenimiento` varchar(50) NOT NULL,
   `observacion` text NOT NULL,
+  `solucion` text DEFAULT NULL,
   `estado` varchar(20) NOT NULL DEFAULT 'reportado',
   `fecha_registro` datetime DEFAULT current_timestamp()
 ) ;
@@ -301,7 +303,8 @@ ALTER TABLE `tb_mantenimientos`
   ADD PRIMARY KEY (`id_mantenimiento`),
   ADD KEY `fk_mantenimientos_equipos` (`id_equipo`),
   ADD KEY `fk_mantenimientos_impresoras` (`id_impresora`),
-  ADD KEY `fk_mantenimiento_usuario` (`id_usuario`);
+  ADD KEY `fk_mantenimiento_usuario` (`id_usuario`),
+  ADD KEY `idx_mantenimientos_tecnico` (`id_tecnico_asignado`);
 
 --
 -- Indices de la tabla `tb_movimientos_stock`
@@ -413,6 +416,7 @@ ALTER TABLE `tb_impresoras`
 --
 ALTER TABLE `tb_mantenimientos`
   ADD CONSTRAINT `fk_mantenimiento_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `tb_usuarios` (`id_usuario`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_mantenimientos_tecnico` FOREIGN KEY (`id_tecnico_asignado`) REFERENCES `tb_usuarios` (`id_usuario`) ON DELETE RESTRICT ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_mantenimientos_equipos` FOREIGN KEY (`id_equipo`) REFERENCES `tb_equipos` (`id_equipo`) ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_mantenimientos_impresoras` FOREIGN KEY (`id_impresora`) REFERENCES `tb_impresoras` (`id_impresora`) ON UPDATE CASCADE;
 

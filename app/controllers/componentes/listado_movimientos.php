@@ -8,13 +8,21 @@ $queryComponentes = $pdo->prepare($sqlComponentes);
 $queryComponentes->execute();
 $componentes_datos = $queryComponentes->fetchAll(PDO::FETCH_ASSOC);
 
-$sqlMantenimientos = 'SELECT id_mantenimiento, fecha, tipo_mantenimiento
-                      FROM tb_mantenimientos
-                      ORDER BY id_mantenimiento DESC
-                      LIMIT 100';
-$queryMantenimientos = $pdo->prepare($sqlMantenimientos);
-$queryMantenimientos->execute();
-$mantenimientos_datos = $queryMantenimientos->fetchAll(PDO::FETCH_ASSOC);
+$mantenimientos_datos = [];
+$id_mantenimiento_preseleccionado = filter_input(INPUT_GET, 'id_mantenimiento', FILTER_VALIDATE_INT);
+
+if (strtolower(trim((string) ($rol_sesion ?? ''))) === 'soporte tecnico') {
+    $queryMantenimientos = $pdo->prepare(
+        "SELECT id_mantenimiento, fecha, tipo_mantenimiento
+         FROM tb_mantenimientos
+         WHERE estado = 'aceptado'
+           AND id_tecnico_asignado = :id_tecnico
+         ORDER BY id_mantenimiento DESC
+         LIMIT 100"
+    );
+    $queryMantenimientos->execute([':id_tecnico' => (int) $id_usuario_sesion]);
+    $mantenimientos_datos = $queryMantenimientos->fetchAll(PDO::FETCH_ASSOC);
+}
 
 $sqlMovimientos = 'SELECT m.id_movimiento, m.tipo, m.cantidad, m.observacion,
                           m.fecha_registro, c.codigo,

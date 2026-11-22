@@ -8,7 +8,9 @@ include('../layout/parte1.php');
 // Identificar el rol del usuario.
 $rol_actual = strtolower(trim($rol_sesion ?? ''));
 
+$es_administrador = in_array($rol_actual, ['administrador', 'super administrador'], true);
 $es_soporte = ($rol_actual === 'soporte tecnico');
+$es_personal = ($rol_actual === 'personal');
 ?>
 
 <div class="content-wrapper">
@@ -28,12 +30,14 @@ $es_soporte = ($rol_actual === 'soporte tecnico');
                 <div class="card-header">
                     <h3 class="card-title">Mantenimientos registrados</h3>
 
+                    <?php if ($es_personal) { ?>
                     <div class="card-tools">
                         <a href="create.php" class="btn btn-primary btn-sm">
                             <i class="fas fa-plus"></i>
                             Registrar mantenimiento
                         </a>
                     </div>
+                    <?php } ?>
                 </div>
 
                 <div class="card-body table-responsive">
@@ -169,7 +173,7 @@ $es_soporte = ($rol_actual === 'soporte tecnico');
                                             </a>
 
                                             <!-- EDITAR Y ELIMINAR: ADMINISTRADOR -->
-                                            <?php if ($rol_actual === 'administrador') { ?>
+                                            <?php if ($es_administrador) { ?>
 
                                                 <a href="update.php?id=<?php echo $id_mantenimiento; ?>"
                                                    class="btn btn-success btn-sm btn-block">
@@ -190,27 +194,10 @@ $es_soporte = ($rol_actual === 'soporte tecnico');
                                             <?php } ?>
 
                                             <!-- FINALIZAR: SOLO SOPORTE TÉCNICO -->
-                                            <?php if ($es_soporte && $estado === 'aceptado') { ?>
-
-                                                <form action="../app/controllers/mantenimiento/finalizar.php"
-                                                      method="POST"
-                                                      style="margin: 0;"
-                                                      onsubmit="return confirm('¿Confirmas que el mantenimiento ya fue finalizado? Se notificará al personal y a los administradores.');">
-
-                                                    <input type="hidden"
-                                                           name="id_mantenimiento"
-                                                           value="<?php echo $id_mantenimiento; ?>">
-
-                                                    <button type="submit"
-                                                            class="btn btn-primary btn-sm btn-block">
-
-                                                        <i class="fas fa-check-double"></i>
-                                                        Mantenimiento finalizado
-
-                                                    </button>
-
-                                                </form>
-
+                                            <?php if ($es_soporte && $estado === 'aceptado' && (int) ($mantenimiento['id_tecnico_asignado'] ?? 0) === (int) $id_usuario_sesion) { ?>
+                                                <a href="show.php?id=<?php echo $id_mantenimiento; ?>" class="btn btn-primary btn-sm btn-block">
+                                                    <i class="fas fa-check-double"></i> Registrar solución
+                                                </a>
                                             <?php } ?>
 
                                         </div>

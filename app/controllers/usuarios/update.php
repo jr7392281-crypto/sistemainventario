@@ -13,6 +13,35 @@ $id_area = (int) ($_POST['id_area'] ?? 0);
 $password_user = $_POST['password_user'] ?? '';
 $password_repeat = $_POST['password_repeat'] ?? '';
 
+$consulta_usuario_actual = $pdo->prepare(
+    'SELECT r.rol
+     FROM tb_usuarios AS u
+     INNER JOIN tb_roles AS r ON r.id_rol = u.id_rol
+     WHERE u.id_usuario = :id_usuario
+     LIMIT 1'
+);
+$consulta_usuario_actual->execute([':id_usuario' => $id_usuario]);
+$rol_usuario_actualizado = strtolower(trim((string) $consulta_usuario_actual->fetchColumn()));
+
+$consulta_rol_nuevo = $pdo->prepare('SELECT rol FROM tb_roles WHERE id_rol = :id_rol LIMIT 1');
+$consulta_rol_nuevo->execute([':id_rol' => $rol]);
+$rol_nuevo = strtolower(trim((string) $consulta_rol_nuevo->fetchColumn()));
+$rol_actual = strtolower(trim((string) $rol_sesion));
+
+if (
+    $rol_usuario_actualizado === '' ||
+    $rol_nuevo === '' ||
+    ($rol_actual === 'administrador' && (
+        $rol_usuario_actualizado === 'super administrador' ||
+        $rol_nuevo === 'super administrador'
+    ))
+) {
+    $_SESSION['mensaje'] = 'No tienes permiso para modificar ese usuario o asignar ese rol.';
+    $_SESSION['icono'] = 'error';
+    header('Location: ' . $URL . '/usuarios/');
+    exit;
+}
+
 if ($id_area < 1) {
     $_SESSION['mensaje'] = 'Debes seleccionar un área.';
     $_SESSION['icono'] = 'error';

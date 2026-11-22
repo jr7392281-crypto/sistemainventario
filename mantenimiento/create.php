@@ -1,6 +1,14 @@
 <?php
 include('../app/config.php');
 include('../layout/sesion.php');
+
+if (strtolower(trim((string) $rol_sesion)) !== 'personal') {
+    $_SESSION['mensaje'] = 'Solo el personal puede registrar una solicitud de mantenimiento.';
+    $_SESSION['icono'] = 'error';
+    header('Location: ' . $URL . '/mantenimiento/');
+    exit;
+}
+
 include('../app/controllers/equipos/listado_de_equipos.php');
 include('../app/controllers/impresoras/listado_impresoras.php');
 include('../layout/parte1.php');

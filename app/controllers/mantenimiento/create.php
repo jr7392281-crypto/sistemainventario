@@ -1,10 +1,18 @@
 <?php
 include('../../config.php');
 require_once __DIR__ . '/../../../layout/sesion.php';
+require_once __DIR__ . '/../../notificaciones.php';
 
 // Verificar que el formulario se haya enviado mediante POST.
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ' . $URL . '/mantenimiento/create.php');
+    exit;
+}
+
+if (strtolower(trim((string) $rol_sesion)) !== 'personal') {
+    $_SESSION['mensaje'] = 'Solo el personal puede registrar una solicitud de mantenimiento.';
+    $_SESSION['icono'] = 'error';
+    header('Location: ' . $URL . '/mantenimiento/');
     exit;
 }
 
@@ -32,6 +40,8 @@ if (($id_equipo === null) === ($id_impresora === null)) {
 }
 
 try {
+
+    $pdo->beginTransaction();
 
     // Preparar el registro del mantenimiento.
     $sentencia = $pdo->prepare(
@@ -72,11 +82,23 @@ try {
     $sentencia->bindValue(':tipo_mantenimiento', $tipo_mantenimiento);
     $sentencia->bindValue(':observacion', $observacion);
 
-    // Registrar el mantenimiento sin enviar notificaciones.
     $sentencia->execute();
 
     // Obtener el ID del mantenimiento registrado.
     $id_mantenimiento = (int) $pdo->lastInsertId();
+
+    // Avisar a los administradores para que revisen y deriven el reporte.
+    notificarRoles(
+        $pdo,
+        ['administrador', 'super administrador'],
+        $id_usuario,
+        $id_mantenimiento,
+        'nuevo_mantenimiento_reportado',
+        'Nuevo reporte de mantenimiento',
+        'El personal registró una solicitud que requiere revisión.'
+    );
+
+    $pdo->commit();
 
     // Mensaje de confirmación.
     $_SESSION['mensaje'] = 'Se registró el mantenimiento correctamente.';
@@ -86,6 +108,10 @@ try {
     exit;
 
 } catch (Throwable $e) {
+
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
 
     error_log('Error al registrar mantenimiento: ' . $e->getMessage());
 

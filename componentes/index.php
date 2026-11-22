@@ -1,6 +1,17 @@
 <?php
 include('../app/config.php');
 include('../layout/sesion.php');
+
+$rol_actual = strtolower(trim((string) ($rol_sesion ?? '')));
+$roles_componentes = ['administrador', 'super administrador', 'encargado de inventario', 'abastecedor', 'soporte tecnico'];
+if (!in_array($rol_actual, $roles_componentes, true)) {
+    $_SESSION['mensaje'] = 'Tu rol no tiene acceso a los componentes.';
+    $_SESSION['icono'] = 'error';
+    header('Location: ' . $URL . '/index.php');
+    exit;
+}
+$puede_registrar_componente = in_array($rol_actual, ['administrador', 'super administrador', 'abastecedor'], true);
+
 include('../layout/parte1.php');
 include('../app/controllers/componentes/listado_componentes.php');
 ?>
@@ -19,11 +30,14 @@ include('../app/controllers/componentes/listado_componentes.php');
                     <h3 class="card-title">Componentes disponibles</h3>
                     <div class="card-tools">
                         <a href="movimientos.php" class="btn btn-outline-primary btn-sm">
-                            <i class="fas fa-tools mr-1"></i> Registrar uso en mantenimiento
+                            <i class="fas fa-tools mr-1"></i>
+                            <?php echo $rol_actual === 'soporte tecnico' ? 'Registrar uso en mantenimiento' : 'Historial de uso'; ?>
                         </a>
+                        <?php if ($puede_registrar_componente) { ?>
                         <a href="create.php" class="btn btn-primary btn-sm">
                             <i class="fas fa-plus mr-1"></i> Registrar componente
                         </a>
+                        <?php } ?>
                     </div>
                 </div>
 

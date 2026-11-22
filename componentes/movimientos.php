@@ -1,6 +1,17 @@
 <?php
 include('../app/config.php');
 include('../layout/sesion.php');
+
+$rol_actual = strtolower(trim((string) ($rol_sesion ?? '')));
+$roles_componentes = ['administrador', 'super administrador', 'encargado de inventario', 'abastecedor', 'soporte tecnico'];
+if (!in_array($rol_actual, $roles_componentes, true)) {
+    $_SESSION['mensaje'] = 'Tu rol no tiene acceso al historial de componentes.';
+    $_SESSION['icono'] = 'error';
+    header('Location: ' . $URL . '/index.php');
+    exit;
+}
+
+$es_soporte = ($rol_actual === 'soporte tecnico');
 include('../layout/parte1.php');
 include('../app/controllers/componentes/listado_movimientos.php');
 ?>
@@ -15,7 +26,7 @@ include('../app/controllers/componentes/listado_movimientos.php');
 
     <div class="content">
         <div class="container-fluid">
-            <?php if (!empty($componentes_datos) && !empty($mantenimientos_datos)) { ?>
+            <?php if ($es_soporte && !empty($componentes_datos) && !empty($mantenimientos_datos)) { ?>
                 <div class="card card-primary">
                     <div class="card-header"><h3 class="card-title">Registrar componente usado en un mantenimiento</h3></div>
                     <form action="../app/controllers/componentes/movimiento.php" method="post">
@@ -41,7 +52,7 @@ include('../app/controllers/componentes/listado_movimientos.php');
                                     <select id="id_mantenimiento" name="id_mantenimiento" class="form-control" required>
                                         <option value="">Selecciona un mantenimiento</option>
                                         <?php foreach ($mantenimientos_datos as $mantenimiento) { ?>
-                                            <option value="<?php echo (int) $mantenimiento['id_mantenimiento']; ?>">
+                                            <option value="<?php echo (int) $mantenimiento['id_mantenimiento']; ?>" <?php echo (int) $id_mantenimiento_preseleccionado === (int) $mantenimiento['id_mantenimiento'] ? 'selected' : ''; ?>>
                                                 <?php echo htmlspecialchars('#' . $mantenimiento['id_mantenimiento'] . ' - ' . $mantenimiento['fecha'] . ' - ' . $mantenimiento['tipo_mantenimiento'], ENT_QUOTES, 'UTF-8'); ?>
                                             </option>
                                         <?php } ?>
@@ -59,10 +70,10 @@ include('../app/controllers/componentes/listado_movimientos.php');
                         </div>
                     </form>
                 </div>
-            <?php } elseif (empty($componentes_datos)) { ?>
-                <div class="alert alert-info">Primero registra un componente para poder anotar su uso.</div>
-            <?php } elseif (empty($mantenimientos_datos)) { ?>
-                <div class="alert alert-info">No hay mantenimientos registrados para asociar el uso de un componente.</div>
+            <?php } elseif ($es_soporte && empty($componentes_datos)) { ?>
+                <div class="alert alert-info">No hay componentes activos en el almac&eacute;n. Solicita su registro al administrador o abastecedor.</div>
+            <?php } elseif ($es_soporte && empty($mantenimientos_datos)) { ?>
+                <div class="alert alert-info">No tienes mantenimientos aceptados asignados para registrar componentes.</div>
             <?php } ?>
 
             <div class="card card-outline card-secondary">

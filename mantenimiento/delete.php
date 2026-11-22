@@ -32,7 +32,7 @@ if (!empty($mantenimiento['codigo_equipo'])) {
 
                         <form action="../app/controllers/mantenimiento/delete.php" method="post">
                             <input type="hidden" name="id_mantenimiento"
-                                value="<?php echo 'id_mantenimiento'; ?>">
+                                value="<?php echo (int) $mantenimiento['id_mantenimiento']; ?>">
 
                             <div class="card-body">
                                 <div class="row">

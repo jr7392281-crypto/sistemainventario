@@ -62,7 +62,7 @@ try {
     // --------------------------------------------------
 
     $consulta = $pdo->prepare(
-        "SELECT id_mantenimiento, id_usuario, estado
+        "SELECT id_mantenimiento, id_usuario, estado, id_tecnico_asignado
          FROM tb_mantenimientos
          WHERE id_mantenimiento = :id
          FOR UPDATE"
@@ -86,7 +86,10 @@ try {
         trim($mantenimiento['estado'] ?? '')
     );
 
-    if ($estado_actual !== 'enviado') {
+    if (
+        !in_array($estado_actual, ['enviado', 'aceptado'], true) ||
+        !empty($mantenimiento['id_tecnico_asignado'])
+    ) {
         throw new Exception(
             'Este mantenimiento no está pendiente de atención o ya fue procesado.'
         );
@@ -98,13 +101,19 @@ try {
 
     $actualizar = $pdo->prepare(
         "UPDATE tb_mantenimientos
-         SET estado = 'rechazado'
-         WHERE id_mantenimiento = :id"
+         SET estado = 'rechazado', solucion = NULL
+         WHERE id_mantenimiento = :id
+           AND id_tecnico_asignado IS NULL
+           AND estado IN ('enviado', 'aceptado')"
     );
 
     $actualizar->execute([
         ':id' => $id_mantenimiento
     ]);
+
+    if ($actualizar->rowCount() !== 1) {
+        throw new Exception('La solicitud ya fue atendida por otro técnico.');
+    }
 
     // --------------------------------------------------
     // NOTIFICAR AL USUARIO QUE REGISTRÓ EL MANTENIMIENTO
@@ -118,6 +127,16 @@ try {
         'mantenimiento_rechazado',
         'Solicitud de mantenimiento rechazada',
         'Tu solicitud de mantenimiento ha sido rechazada por Soporte técnico y no será procesada.'
+    );
+
+    notificarRoles(
+        $pdo,
+        ['administrador', 'super administrador'],
+        (int) $id_usuario_sesion,
+        (int) $id_mantenimiento,
+        'mantenimiento_rechazado_admin',
+        'Mantenimiento rechazado por Soporte',
+        'Soporte técnico rechazó una solicitud. Revísala para decidir si se vuelve a enviar.'
     );
 
     // --------------------------------------------------

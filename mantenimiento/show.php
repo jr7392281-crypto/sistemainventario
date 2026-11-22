@@ -25,10 +25,15 @@ $estado_actual = strtolower(trim($estado_mantenimiento ?? 'reportado'));
 
 // Determinar las acciones disponibles.
 $puede_enviar = $es_administrador &&
-    ($estado_actual === 'reportado' || $estado_actual === '');
+    in_array($estado_actual, ['reportado', 'rechazado', ''], true);
 
+$puede_atender = $es_soporte && (
+    $estado_actual === 'enviado' ||
+    ($estado_actual === 'aceptado' && empty($tecnico_asignado))
+);
 $puede_resolver = $es_soporte &&
-    $estado_actual === 'enviado';
+    $estado_actual === 'aceptado' &&
+    (int) ($tecnico_asignado ?? 0) === (int) $id_usuario_sesion;
 
 // ======================================================
 // TEXTO DEL ESTADO
@@ -57,6 +62,12 @@ switch ($estado_actual) {
         $etiqueta_estado = 'Mantenimiento aceptado';
         $clase_estado = 'text-success';
         $icono_estado = 'fa-check-circle';
+        break;
+
+    case 'resuelto':
+        $etiqueta_estado = 'Mantenimiento resuelto';
+        $clase_estado = 'text-success';
+        $icono_estado = 'fa-check-double';
         break;
 
     case 'rechazado':
@@ -184,12 +195,12 @@ switch ($estado_actual) {
                         <?php } ?>
 
                         <!-- ACCIONES DE SOPORTE TÉCNICO -->
-                        <?php if ($puede_resolver) { ?>
+                        <?php if ($puede_atender) { ?>
 
                             <div class="col-md-12">
                                 <div class="form-group">
 
-                                    <label>Resolver mantenimiento</label>
+                                    <label>Atender solicitud</label>
                                     <br>
 
                                     <form action="../app/controllers/mantenimiento/aceptar.php"
@@ -248,6 +259,48 @@ switch ($estado_actual) {
                             </div>
                         </div>
 
+                        <?php if (!empty($nombre_tecnico)) { ?>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>T&eacute;cnico asignado</label>
+                                    <input type="text" class="form-control" value="<?php echo htmlspecialchars($nombre_tecnico, ENT_QUOTES, 'UTF-8'); ?>" readonly>
+                                </div>
+                            </div>
+                        <?php } ?>
+
+                        <?php if ($estado_actual === 'resuelto' && trim((string) $solucion_mantenimiento) !== '') { ?>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Soluci&oacute;n reportada por Soporte</label>
+                                    <textarea class="form-control" rows="4" readonly><?php echo htmlspecialchars($solucion_mantenimiento, ENT_QUOTES, 'UTF-8'); ?></textarea>
+                                </div>
+                            </div>
+                        <?php } ?>
+
+                        <?php if (!empty($componentes_usados)) { ?>
+                            <div class="col-md-12">
+                                <label>Componentes utilizados</label>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-sm">
+                                        <thead>
+                                            <tr><th>Componente</th><th>Cantidad</th><th>T&eacute;cnico</th><th>Fecha</th><th>Observaci&oacute;n</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($componentes_usados as $uso) { ?>
+                                                <tr>
+                                                    <td><?php echo htmlspecialchars($uso['codigo'] . ' - ' . $uso['nombre'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                                    <td><?php echo (int) $uso['cantidad']; ?></td>
+                                                    <td><?php echo htmlspecialchars($uso['tecnico'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                                    <td><?php echo htmlspecialchars($uso['fecha_registro'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                                    <td><?php echo htmlspecialchars($uso['observacion'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                                                </tr>
+                                            <?php } ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        <?php } ?>
+
                     </div>
 
                     <a href="index.php" class="btn btn-secondary">
@@ -255,7 +308,23 @@ switch ($estado_actual) {
                         Volver
                     </a>
 
-                    <?php if ($rol_actual === 'administrador') { ?>
+                    <?php if ($puede_resolver) { ?>
+                        <a href="../componentes/movimientos.php?id_mantenimiento=<?php echo (int) $id_mantenimiento_get; ?>" class="btn btn-info">
+                            <i class="fas fa-boxes"></i> Registrar componentes usados
+                        </a>
+                        <form action="../app/controllers/mantenimiento/finalizar.php" method="POST" class="mt-3">
+                            <input type="hidden" name="id_mantenimiento" value="<?php echo (int) $id_mantenimiento_get; ?>">
+                            <div class="form-group">
+                                <label for="solucion">Soluci&oacute;n aplicada</label>
+                                <textarea id="solucion" name="solucion" class="form-control" rows="4" maxlength="5000" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary" onclick="return confirm('¿Confirmas que este mantenimiento ya fue resuelto?');">
+                                <i class="fas fa-check-double"></i> Finalizar mantenimiento
+                            </button>
+                        </form>
+                    <?php } ?>
+
+                    <?php if ($es_administrador) { ?>
 
                         <a href="update.php?id=<?php echo (int) $id_mantenimiento_get; ?>"
                            class="btn btn-success">

@@ -133,7 +133,8 @@ function estadoMantenimientoEtiqueta(string $estado): string
         'reportado' => 'Pendiente de revisión',
         'enviado' => 'Enviado a Soporte técnico',
         'aceptado' => 'Mantenimiento aceptado',
-        'rechazado' => 'Mantenimiento rechazado'
+        'rechazado' => 'Mantenimiento rechazado',
+        'resuelto' => 'Mantenimiento resuelto'
     ];
 
     return $etiquetas[strtolower(trim($estado))] ?? 'Desconocido';

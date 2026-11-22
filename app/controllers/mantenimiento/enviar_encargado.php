@@ -90,8 +90,8 @@ try {
 
     $estado_actual = strtolower(trim($mantenimiento['estado'] ?? 'reportado'));
 
-    if (!in_array($estado_actual, ['reportado', ''], true)) {
-        throw new Exception('Esta solicitud ya fue enviada o procesada.');
+    if (!in_array($estado_actual, ['reportado', 'rechazado', ''], true)) {
+        throw new Exception('Esta solicitud ya fue enviada o no puede reenviarse.');
     }
 
 
@@ -101,7 +101,7 @@ try {
 
     $actualizar = $pdo->prepare(
         "UPDATE tb_mantenimientos
-         SET estado = 'enviado'
+         SET estado = 'enviado', id_tecnico_asignado = NULL, solucion = NULL
          WHERE id_mantenimiento = :id"
     );
 

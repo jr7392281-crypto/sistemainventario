@@ -1,6 +1,14 @@
 <?php
 include('../app/config.php');
 include('../layout/sesion.php');
+
+if (!in_array(strtolower(trim((string) $rol_sesion)), ['administrador', 'super administrador', 'abastecedor'], true)) {
+    $_SESSION['mensaje'] = 'Tu rol no puede registrar componentes.';
+    $_SESSION['icono'] = 'error';
+    header('Location: ' . $URL . '/componentes/');
+    exit;
+}
+
 include('../layout/parte1.php');
 include('../app/controllers/componentes/listado_para_crear.php');
 ?>

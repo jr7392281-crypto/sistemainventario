@@ -121,9 +121,14 @@ if (isset($_SESSION['mensaje'])) {
                     $area_usuario = $usuario_dato['area'] ?? '';
                     $rol_usuario_normalizado = strtolower(trim($rol_usuario));
                     $es_usuario_actual = strcasecmp($email_usuario, $_SESSION['sesion_email'] ?? '') === 0;
+                    $es_superadministrador_objetivo = $rol_usuario_normalizado === 'super administrador';
+                    $puede_editar_usuario = !(
+                      $rol_sesion_normalizado === 'administrador'
+                      && $es_superadministrador_objetivo
+                    );
                     $puede_eliminar_usuario = !$es_usuario_actual && !(
                       $rol_sesion_normalizado === 'administrador'
-                      && $rol_usuario_normalizado === 'super administrador'
+                      && $es_superadministrador_objetivo
                     );
                   ?>
 
@@ -169,6 +174,7 @@ if (isset($_SESSION['mensaje'])) {
                             </button>
 
                             <!-- BOTÓN EDITAR -->
+                            <?php if ($puede_editar_usuario) { ?>
                             <button type="button"
                               class="btn btn-success btn-sm"
                               data-toggle="modal"
@@ -177,6 +183,7 @@ if (isset($_SESSION['mensaje'])) {
                               <i class="fa fa-pencil-alt"></i> Editar
 
                             </button>
+                            <?php } ?>
 
                             <!-- BOTÓN BORRAR -->
                             <?php if ($puede_eliminar_usuario) { ?>
@@ -302,12 +309,12 @@ if (isset($_SESSION['mensaje'])) {
                                           ]);
 
                                           $descripciones_roles = [
-                                            'administrador' => 'Administra las funciones y operaciones del sistema.',
-                                            'encargado de inventario' => 'Registra y controla los equipos informáticos.',
-                                            'superadministrador' => 'Tiene el control total del sistema.',
-                                            'abastecedor' => 'Gestiona los bienes y recursos de la municipalidad.',
-                                            'soporte tecnico' => 'Atiende fallas y realiza mantenimiento de equipos.',
-                                            'personal' => 'Usuario perteneciente a un área de trabajo de la municipalidad.'
+                                            'administrador' => 'Gestiona reportes y operaciones. No puede modificar ni eliminar super administradores.',
+                                            'encargado de inventario' => 'Administra equipos e impresoras y consulta el stock de componentes.',
+                                            'super administrador' => 'Tiene acceso total y puede gestionar a los administradores y demas usuarios.',
+                                            'abastecedor' => 'Registra componentes y su stock inicial; no atiende mantenimientos.',
+                                            'soporte tecnico' => 'Atiende trabajos asignados, registra componentes usados y reporta la solucion.',
+                                            'personal' => 'Registra solicitudes de mantenimiento y consulta sus propias solicitudes.'
                                           ];
 
                                           echo htmlspecialchars(
@@ -432,6 +439,9 @@ if (isset($_SESSION['mensaje'])) {
                                   <?php foreach ($roles_datos as $roles_dato) {
 
                                     $nombre_rol_opcion = $roles_dato['rol'];
+                                    if ($rol_sesion_normalizado === 'administrador' && strtolower(trim($nombre_rol_opcion)) === 'super administrador') {
+                                      continue;
+                                    }
 
                                   ?>
 
@@ -773,7 +783,11 @@ if (isset($_SESSION['mensaje'])) {
 
               <option value="">Seleccione un rol</option>
 
-              <?php foreach ($roles_datos as $roles_dato) { ?>
+              <?php foreach ($roles_datos as $roles_dato) {
+                if ($rol_sesion_normalizado === 'administrador' && strtolower(trim($roles_dato['rol'])) === 'super administrador') {
+                  continue;
+                }
+              ?>
 
                 <option value="<?php echo (int) $roles_dato['id_rol']; ?>">
 
@@ -927,12 +941,12 @@ if (isset($_SESSION['mensaje'])) {
     // ==========================================
 
     const descripciones = {
-      'administrador': 'Administra las funciones y operaciones del sistema.',
-      'encargado de inventario': 'Registra y controla los equipos informáticos.',
-      'superadministrador': 'Tiene el control total del sistema.',
-      'abastecedor': 'Gestiona los bienes y recursos de la municipalidad.',
-      'soporte tecnico': 'Atiende fallas y realiza mantenimiento de equipos.',
-      'personal': 'Usuario perteneciente a un área de trabajo de la municipalidad.'
+      'administrador': 'Gestiona reportes y operaciones. No puede modificar ni eliminar super administradores.',
+      'encargado de inventario': 'Administra equipos e impresoras y consulta el stock de componentes.',
+      'super administrador': 'Tiene acceso total y puede gestionar a los administradores y demas usuarios.',
+      'abastecedor': 'Registra componentes y su stock inicial; no atiende mantenimientos.',
+      'soporte tecnico': 'Atiende trabajos asignados, registra componentes usados y reporta la solucion.',
+      'personal': 'Registra solicitudes de mantenimiento y consulta sus propias solicitudes.'
     };
 
 

@@ -3,7 +3,7 @@
 
 include('../../config.php');
 require_once __DIR__ . '/../../../layout/sesion.php';
-require_once '../../notificaciones.php';
+require_once __DIR__ . '/../../notificaciones.php';
 
 // ======================================================
 // VERIFICAR MÉTODO POST
@@ -39,10 +39,13 @@ $id_mantenimiento = filter_input(
     'id_mantenimiento',
     FILTER_VALIDATE_INT
 );
+$solucion = is_string($_POST['solucion'] ?? null)
+    ? trim($_POST['solucion'])
+    : '';
 
-if (!$id_mantenimiento || $id_mantenimiento < 1) {
+if (!$id_mantenimiento || $id_mantenimiento < 1 || $solucion === '') {
 
-    $_SESSION['mensaje'] = 'El mantenimiento seleccionado no es válido.';
+    $_SESSION['mensaje'] = 'Revisa el mantenimiento y escribe la solución aplicada.';
     $_SESSION['icono'] = 'error';
 
     header('Location: ' . $URL . '/mantenimiento/');
@@ -59,7 +62,7 @@ try {
 
     // Obtener mantenimiento y usuario solicitante.
     $consulta = $pdo->prepare(
-        "SELECT id_mantenimiento, id_usuario, estado
+        "SELECT id_mantenimiento, id_usuario, estado, id_tecnico_asignado
          FROM tb_mantenimientos
          WHERE id_mantenimiento = :id
          FOR UPDATE"
@@ -86,19 +89,29 @@ try {
         );
     }
 
+    if ((int) ($mantenimiento['id_tecnico_asignado'] ?? 0) !== (int) $id_usuario_sesion) {
+        throw new Exception('Solo el técnico que aceptó este mantenimiento puede finalizarlo.');
+    }
+
     // ==================================================
     // ACTUALIZAR ESTADO A RESUELTO
     // ==================================================
 
     $actualizar = $pdo->prepare(
         "UPDATE tb_mantenimientos
-         SET estado = 'resuelto'
-         WHERE id_mantenimiento = :id"
+         SET estado = 'resuelto', solucion = :solucion
+         WHERE id_mantenimiento = :id AND id_tecnico_asignado = :id_tecnico"
     );
 
     $actualizar->execute([
-        ':id' => $id_mantenimiento
+        ':solucion' => $solucion,
+        ':id' => $id_mantenimiento,
+        ':id_tecnico' => (int) $id_usuario_sesion
     ]);
+
+    if ($actualizar->rowCount() !== 1) {
+        throw new Exception('No se pudo cerrar el mantenimiento asignado.');
+    }
 
     // ==================================================
     // NOTIFICAR AL PERSONAL SOLICITANTE

@@ -38,6 +38,8 @@
       session_start();
     }
 
+    include_once __DIR__ . '/mensajes.php';
+
     if (empty($_SESSION['csrf_notificaciones'])) {
       $_SESSION['csrf_notificaciones'] = bin2hex(random_bytes(32));
     }
@@ -97,11 +99,11 @@
       <!-- Right navbar links -->
       <ul class="navbar-nav ml-auto">
         <li class="nav-item dropdown">
-          <a class="nav-link" data-toggle="dropdown" href="#" role="button"
+          <a id="campana-notificaciones" class="nav-link" data-toggle="dropdown" href="#" role="button"
             aria-label="Notificaciones" aria-haspopup="true" aria-expanded="false">
             <i class="far fa-bell"></i>
             <?php if ($notificaciones_no_leidas > 0) { ?>
-              <span class="badge badge-danger navbar-badge">
+              <span id="contador-notificaciones" class="badge badge-danger navbar-badge">
                 <?php echo $notificaciones_no_leidas > 99 ? '99+' : $notificaciones_no_leidas; ?>
               </span>
             <?php } ?>
@@ -109,11 +111,11 @@
           <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right p-0">
             <div class="px-3 py-2 d-flex justify-content-between align-items-center">
               <strong>Notificaciones</strong>
-              <span class="text-muted small"><?php echo $notificaciones_no_leidas; ?> sin leer</span>
+              <span id="texto-notificaciones-pendientes" class="text-muted small"><?php echo $notificaciones_no_leidas; ?> sin leer</span>
             </div>
             <?php if ($notificaciones_no_leidas > 0) { ?>
               <form action="<?php echo $URL; ?>/app/controllers/notificaciones/marcar_leida.php"
-                method="post" class="px-3 pb-2 mb-0 text-right">
+                method="post" class="js-marcar-notificacion px-3 pb-2 mb-0 text-right">
                 <input type="hidden" name="csrf_token"
                   value="<?php echo htmlspecialchars($_SESSION['csrf_notificaciones'], ENT_QUOTES, 'UTF-8'); ?>">
                 <input type="hidden" name="marcar_todas" value="1">
@@ -154,7 +156,7 @@
                     <?php } ?>
                     <?php if ((int) $notificacion['leida'] === 0) { ?>
                       <form action="<?php echo $URL; ?>/app/controllers/notificaciones/marcar_leida.php"
-                        method="post" class="mb-0">
+                        method="post" class="js-marcar-notificacion mb-0">
                         <input type="hidden" name="csrf_token"
                           value="<?php echo htmlspecialchars($_SESSION['csrf_notificaciones'], ENT_QUOTES, 'UTF-8'); ?>">
                         <input type="hidden" name="id_notificacion"
@@ -182,6 +184,76 @@
       </ul>
     </nav>
     <!-- /.navbar -->
+
+    <script>
+      document.addEventListener('submit', async function (event) {
+        const formulario = event.target.closest('.js-marcar-notificacion');
+        if (!formulario) return;
+
+        event.preventDefault();
+        const datos = new FormData(formulario);
+        datos.append('ajax', '1');
+
+        try {
+          const respuesta = await fetch(formulario.action, {
+            method: 'POST',
+            body: datos,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+          });
+          const resultado = await respuesta.json();
+
+          if (!respuesta.ok || !resultado.ok) {
+            throw new Error(resultado.mensaje || 'No se pudo actualizar la notificación.');
+          }
+
+          if (datos.has('marcar_todas')) {
+            document.querySelectorAll('.dropdown-item.bg-light').forEach(function (elemento) {
+              elemento.classList.remove('bg-light');
+              const icono = elemento.querySelector('.fa-bell');
+              if (icono) {
+                icono.classList.remove('text-primary');
+                icono.classList.add('text-muted');
+              }
+              const boton = elemento.querySelector('.js-marcar-notificacion');
+              if (boton) boton.remove();
+            });
+            formulario.remove();
+          } else {
+            const elemento = formulario.closest('.dropdown-item');
+            if (elemento) {
+              elemento.classList.remove('bg-light');
+              const icono = elemento.querySelector('.fa-bell');
+              if (icono) {
+                icono.classList.remove('text-primary');
+                icono.classList.add('text-muted');
+              }
+              formulario.remove();
+            }
+          }
+
+          const pendientes = resultado.no_leidas;
+          const textoPendientes = document.getElementById('texto-notificaciones-pendientes');
+          if (textoPendientes) textoPendientes.textContent = pendientes + ' sin leer';
+
+          let contador = document.getElementById('contador-notificaciones');
+          if (pendientes === 0) {
+            if (contador) contador.remove();
+          } else {
+            if (!contador) {
+              contador = document.createElement('span');
+              contador.id = 'contador-notificaciones';
+              contador.className = 'badge badge-danger navbar-badge';
+              document.getElementById('campana-notificaciones').appendChild(contador);
+            }
+            contador.textContent = pendientes > 99 ? '99+' : pendientes;
+          }
+        } catch (error) {
+          if (window.Swal) {
+            Swal.fire({ icon: 'error', title: error.message, showConfirmButton: false, timer: 1800 });
+          }
+        }
+      });
+    </script>
 
     <!-- Main Sidebar Container -->
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
@@ -291,7 +363,7 @@
                     <p>Listado de Equipos</p>
                   </a>
                 </li>
-                <?php if (in_array($rol_sesion, ['administrador', 'encargado de inventario'], true)) { ?>
+                <?php if (in_array($rol_sesion, ['administrador', 'super administrador', 'encargado de inventario'], true)) { ?>
                   <li class="nav-item">
                     <a href="<?php echo $URL; ?>/equipos/create.php" class="nav-link">
                       <i class="far fa-circle nav-icon"></i>
@@ -318,7 +390,7 @@
                     <p>Listado de Impresoras</p>
                   </a>
                 </li>
-                <?php if (in_array($rol_sesion, ['administrador', 'encargado de inventario'], true)) { ?>
+                <?php if (in_array($rol_sesion, ['administrador', 'super administrador', 'encargado de inventario'], true)) { ?>
                   <li class="nav-item">
                     <a href="<?php echo $URL; ?>/impresoras/create.php" class="nav-link">
                       <i class="far fa-circle nav-icon"></i>
@@ -365,6 +437,7 @@
             <?php } ?>
 
             <!--mantenimiento-->
+            <?php if (in_array(strtolower(trim((string) $rol_sesion)), ['administrador', 'super administrador', 'personal', 'soporte tecnico'], true)) { ?>
             <li class="nav-item">
               <a href="#" class="nav-link active">
                 <i class="nav-icon fas fa-tools"></i>
@@ -383,6 +456,7 @@
                     </p>
                   </a>
                 </li>
+                <?php if (strtolower(trim((string) $rol_sesion)) === 'personal') { ?>
                 <li class="nav-item">
                   <a href="<?php echo $URL; ?>/mantenimiento/create.php" class="nav-link"
                     style="display: flex; align-items: center;">
@@ -392,8 +466,10 @@
                     </p>
                   </a>
                 </li>
+                <?php } ?>
               </ul>
             </li>
+            <?php } ?>
             <!-- Fin de Mantenimiento -->
 
 

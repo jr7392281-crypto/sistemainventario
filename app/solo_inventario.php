@@ -18,9 +18,13 @@ $consulta_rol = $pdo->prepare(
 $consulta_rol->execute([':email' => $_SESSION['sesion_email']]);
 $rol_sesion = $consulta_rol->fetchColumn();
 
-$roles_con_acceso_inventario = ['administrador', 'encargado de inventario'];
+$roles_con_acceso_inventario = [
+    'administrador',
+    'super administrador',
+    'encargado de inventario'
+];
 
-if (!in_array($rol_sesion, $roles_con_acceso_inventario, true)) {
+if (!in_array(strtolower(trim((string) $rol_sesion)), $roles_con_acceso_inventario, true)) {
     $_SESSION['mensaje'] = 'No tienes permiso para gestionar los activos.';
     $_SESSION['icono'] = 'error';
     header('Location: ' . $URL . '/index.php');
