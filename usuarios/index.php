@@ -310,9 +310,9 @@ if (isset($_SESSION['mensaje'])) {
 
                                           $descripciones_roles = [
                                             'administrador' => 'Gestiona reportes y operaciones. No puede modificar ni eliminar super administradores.',
-                                            'encargado de inventario' => 'Administra equipos e impresoras y consulta el stock de componentes.',
+                                            'encargado de inventario' => 'Gestiona equipos e impresoras y registra componentes con su stock inicial.',
                                             'super administrador' => 'Tiene acceso total y puede gestionar a los administradores y demas usuarios.',
-                                            'abastecedor' => 'Registra componentes y su stock inicial; no atiende mantenimientos.',
+                                            'abastecedor' => 'Consulta equipos e impresoras; no administra componentes ni mantenimientos.',
                                             'soporte tecnico' => 'Atiende trabajos asignados, registra componentes usados y reporta la solucion.',
                                             'personal' => 'Registra solicitudes de mantenimiento y consulta sus propias solicitudes.'
                                           ];
@@ -942,9 +942,9 @@ if (isset($_SESSION['mensaje'])) {
 
     const descripciones = {
       'administrador': 'Gestiona reportes y operaciones. No puede modificar ni eliminar super administradores.',
-      'encargado de inventario': 'Administra equipos e impresoras y consulta el stock de componentes.',
+      'encargado de inventario': 'Gestiona equipos e impresoras y registra componentes con su stock inicial.',
       'super administrador': 'Tiene acceso total y puede gestionar a los administradores y demas usuarios.',
-      'abastecedor': 'Registra componentes y su stock inicial; no atiende mantenimientos.',
+      'abastecedor': 'Consulta equipos e impresoras; no administra componentes ni mantenimientos.',
       'soporte tecnico': 'Atiende trabajos asignados, registra componentes usados y reporta la solucion.',
       'personal': 'Registra solicitudes de mantenimiento y consulta sus propias solicitudes.'
     };

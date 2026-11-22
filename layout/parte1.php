@@ -402,7 +402,7 @@
             </li>
             <!-- Fin de Impresoras -->
 
-            <?php if (in_array($rol_sesion, ['administrador', 'super administrador', 'encargado de inventario', 'abastecedor', 'soporte tecnico'], true)) { ?>
+            <?php if (in_array($rol_sesion, ['administrador', 'super administrador', 'encargado de inventario', 'soporte tecnico'], true)) { ?>
               <li class="nav-item">
                 <a href="#" class="nav-link active">
                   <i class="nav-icon fas fa-boxes"></i>
@@ -418,7 +418,7 @@
                       <p>Stock de componentes</p>
                     </a>
                   </li>
-                  <?php if (in_array($rol_sesion, ['administrador', 'super administrador', 'abastecedor'], true)) { ?>
+                  <?php if (in_array($rol_sesion, ['administrador', 'super administrador', 'encargado de inventario'], true)) { ?>
                     <li class="nav-item">
                       <a href="<?php echo $URL; ?>/componentes/create.php" class="nav-link">
                         <i class="far fa-circle nav-icon"></i>

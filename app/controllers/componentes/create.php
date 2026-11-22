@@ -1,13 +1,7 @@
 <?php
 include('../../config.php');
 require_once __DIR__ . '/../../../layout/sesion.php';
-
-if (!in_array(strtolower(trim((string) $rol_sesion)), ['administrador', 'super administrador', 'abastecedor'], true)) {
-    $_SESSION['mensaje'] = 'Tu rol no puede registrar componentes.';
-    $_SESSION['icono'] = 'error';
-    header('Location: ' . $URL . '/componentes/');
-    exit;
-}
+require_once __DIR__ . '/../../solo_inventario.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ' . $URL . '/componentes/');

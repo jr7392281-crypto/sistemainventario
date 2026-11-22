@@ -1,15 +1,39 @@
 <?php
 include('app/config.php');
 include('layout/sesion.php');
-include('layout/parte1.php');
 include('app/controllers/equipos/listado_de_equipos.php');
 include('app/controllers/impresoras/listado_impresoras.php');
-include('app/controllers/mantenimiento/listado_mantenimientos.php');
-if ($rol_sesion === 'administrador') {
+
+$rol_actual = strtolower(trim((string) $rol_sesion));
+$roles_con_mantenimientos = ['administrador', 'super administrador', 'personal', 'soporte tecnico'];
+$mostrar_card_mantenimiento = in_array($rol_actual, $roles_con_mantenimientos, true);
+$total_mantenimientos = 0;
+
+if ($mostrar_card_mantenimiento) {
+  $sql_total_mantenimientos = 'SELECT COUNT(*) FROM tb_mantenimientos';
+  $parametros_mantenimiento = [];
+
+  if ($rol_actual === 'personal') {
+    $sql_total_mantenimientos .= ' WHERE id_usuario = :id_usuario';
+    $parametros_mantenimiento[':id_usuario'] = (int) $id_usuario_sesion;
+  } elseif ($rol_actual === 'soporte tecnico') {
+    $sql_total_mantenimientos .= " WHERE estado IN ('enviado', 'rechazado')
+      OR (estado = 'aceptado' AND id_tecnico_asignado IS NULL)
+      OR id_tecnico_asignado = :id_tecnico";
+    $parametros_mantenimiento[':id_tecnico'] = (int) $id_usuario_sesion;
+  }
+
+  $consulta_total_mantenimientos = $pdo->prepare($sql_total_mantenimientos);
+  $consulta_total_mantenimientos->execute($parametros_mantenimiento);
+  $total_mantenimientos = (int) $consulta_total_mantenimientos->fetchColumn();
+}
+
+if (in_array($rol_actual, ['administrador', 'super administrador'], true)) {
   include('app/controllers/usuarios/listado_de_usuarios.php');
   include('app/controllers/roles/listado_de_roles.php');
   include('app/controllers/areas/listado_de_areas.php');
 }
+include('layout/parte1.php');
 ?>
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
@@ -33,7 +57,7 @@ if ($rol_sesion === 'administrador') {
 
       <div class="row">
 
-        <?php if ($rol_sesion === 'administrador') { ?>
+        <?php if (in_array($rol_actual, ['administrador', 'super administrador'], true)) { ?>
           <div class="col-lg-3 col-6">
             <div class="small-box bg-warning">
               <div class="inner">
@@ -131,31 +155,25 @@ if ($rol_sesion === 'administrador') {
           </div>
         </div>
 
+        <?php if ($mostrar_card_mantenimiento) { ?>
         <div class="col-lg-3 col-6">
           <!-- small card -->
           <div class="small-box bg-info">
             <div class="inner">
-              <?php
-              $contador_de_mantenimientos = 0;
-              foreach ($mantenimientos_datos as $mantenimientos_dato) {
-                $contador_de_mantenimientos = $contador_de_mantenimientos + 1;
-              }
-              ?>
               <H3>
-                <?php echo $contador_de_mantenimientos ?>
+                <?php echo $total_mantenimientos; ?>
               </H3>
               <p>Mantenimientos Registrados</p>
             </div>
-            <a href="<?php echo $URL; ?>/mantenimiento/create.php">
-              <div class="icon">
-                <i class="fas fa-wrench"></i>
-              </div>
-            </a>
+            <div class="icon">
+              <i class="fas fa-wrench"></i>
+            </div>
             <a href="<?php echo $URL; ?>/mantenimiento/" class="small-box-footer">
               Mas detalles <i class="fas fa-arrow-circle-right"></i>
             </a>
           </div>
         </div>
+        <?php } ?>
       </div>
 
     </div><!-- /.container-fluid -->

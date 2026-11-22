@@ -3,14 +3,14 @@ include('../app/config.php');
 include('../layout/sesion.php');
 
 $rol_actual = strtolower(trim((string) ($rol_sesion ?? '')));
-$roles_componentes = ['administrador', 'super administrador', 'encargado de inventario', 'abastecedor', 'soporte tecnico'];
+$roles_componentes = ['administrador', 'super administrador', 'encargado de inventario', 'soporte tecnico'];
 if (!in_array($rol_actual, $roles_componentes, true)) {
     $_SESSION['mensaje'] = 'Tu rol no tiene acceso a los componentes.';
     $_SESSION['icono'] = 'error';
     header('Location: ' . $URL . '/index.php');
     exit;
 }
-$puede_registrar_componente = in_array($rol_actual, ['administrador', 'super administrador', 'abastecedor'], true);
+$puede_registrar_componente = in_array($rol_actual, ['administrador', 'super administrador', 'encargado de inventario'], true);
 
 include('../layout/parte1.php');
 include('../app/controllers/componentes/listado_componentes.php');

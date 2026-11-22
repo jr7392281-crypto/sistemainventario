@@ -3,7 +3,7 @@ include('../app/config.php');
 include('../layout/sesion.php');
 
 $rol_actual = strtolower(trim((string) ($rol_sesion ?? '')));
-$roles_componentes = ['administrador', 'super administrador', 'encargado de inventario', 'abastecedor', 'soporte tecnico'];
+$roles_componentes = ['administrador', 'super administrador', 'encargado de inventario', 'soporte tecnico'];
 if (!in_array($rol_actual, $roles_componentes, true)) {
     $_SESSION['mensaje'] = 'Tu rol no tiene acceso al historial de componentes.';
     $_SESSION['icono'] = 'error';
@@ -71,7 +71,7 @@ include('../app/controllers/componentes/listado_movimientos.php');
                     </form>
                 </div>
             <?php } elseif ($es_soporte && empty($componentes_datos)) { ?>
-                <div class="alert alert-info">No hay componentes activos en el almac&eacute;n. Solicita su registro al administrador o abastecedor.</div>
+                <div class="alert alert-info">No hay componentes activos en el almac&eacute;n. Solicita su registro al encargado de inventario.</div>
             <?php } elseif ($es_soporte && empty($mantenimientos_datos)) { ?>
                 <div class="alert alert-info">No tienes mantenimientos aceptados asignados para registrar componentes.</div>
             <?php } ?>
