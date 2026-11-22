@@ -4,6 +4,11 @@ include('../layout/sesion.php');
 include('../app/notificaciones.php');
 include('../app/controllers/mantenimiento/listado_mantenimientos.php');
 include('../layout/parte1.php');
+
+// Identificar el rol del usuario.
+$rol_actual = strtolower(trim($rol_sesion ?? ''));
+
+$es_soporte = ($rol_actual === 'soporte tecnico');
 ?>
 
 <div class="content-wrapper">
@@ -19,12 +24,14 @@ include('../layout/parte1.php');
 
             <div class="card card-outline card-primary">
 
+                <!-- ENCABEZADO -->
                 <div class="card-header">
                     <h3 class="card-title">Mantenimientos registrados</h3>
 
                     <div class="card-tools">
                         <a href="create.php" class="btn btn-primary btn-sm">
-                            <i class="fas fa-plus"></i> Registrar mantenimiento
+                            <i class="fas fa-plus"></i>
+                            Registrar mantenimiento
                         </a>
                     </div>
                 </div>
@@ -42,18 +49,20 @@ include('../layout/parte1.php');
                                 <th>Estado</th>
                                 <th>Solicitante</th>
                                 <th>Observación</th>
-                                <th>Acciones</th>
+                                <th style="min-width: 160px;">Acciones</th>
                             </tr>
                         </thead>
 
                         <tbody>
+
                             <?php
                             $contador = 0;
 
                             foreach ($mantenimientos_datos as $mantenimiento) {
+
                                 $id_mantenimiento = (int) $mantenimiento['id_mantenimiento'];
 
-                                // Mostrar el equipo o la impresora
+                                // Mostrar el equipo o la impresora.
                                 $activos = [];
 
                                 if (!empty($mantenimiento['codigo_equipo'])) {
@@ -66,9 +75,29 @@ include('../layout/parte1.php');
                                         $mantenimiento['fabricante'] . ' ' .
                                         $mantenimiento['modelo'];
                                 }
+
+                                // Obtener estado.
+                                $estado = strtolower(
+                                    trim($mantenimiento['estado'] ?? 'reportado')
+                                );
+
+                                // Obtener etiqueta del estado.
+                                $etiqueta_estado = estadoMantenimientoEtiqueta($estado);
+
+                                // Colores de los estados.
+                                $colores_estado = [
+                                    'reportado' => 'warning',
+                                    'enviado' => 'info',
+                                    'aceptado' => 'primary',
+                                    'rechazado' => 'danger',
+                                    'resuelto' => 'success'
+                                ];
+
+                                $color_estado = $colores_estado[$estado] ?? 'secondary';
                                 ?>
 
                                 <tr>
+
                                     <td class="text-center">
                                         <?php echo ++$contador; ?>
                                     </td>
@@ -97,11 +126,11 @@ include('../layout/parte1.php');
 
                                         $color = 'secondary';
 
-                                        if ($tipo == 'Preventivo') {
+                                        if ($tipo === 'Preventivo') {
                                             $color = 'success';
-                                        } elseif ($tipo == 'Correctivo') {
+                                        } elseif ($tipo === 'Correctivo') {
                                             $color = 'danger';
-                                        } elseif ($tipo == 'Predictivo') {
+                                        } elseif ($tipo === 'Predictivo') {
                                             $color = 'info';
                                         }
                                         ?>
@@ -112,18 +141,10 @@ include('../layout/parte1.php');
                                     </td>
 
                                     <td>
-                                        <?php
-                                        $estado = $mantenimiento['estado'] ?? 'reportado';
-                                        $etiqueta_estado = estadoMantenimientoEtiqueta($estado);
-                                        $color_estado = $estado === 'resuelto'
-                                            ? 'success'
-                                            : ($estado === 'en_proceso' ? 'warning' : 'secondary');
-                                        ?>
                                         <span class="badge badge-<?php echo $color_estado; ?>">
                                             <?php echo htmlspecialchars($etiqueta_estado, ENT_QUOTES, 'UTF-8'); ?>
                                         </span>
                                     </td>
-
 
                                     <td>
                                         <?php echo htmlspecialchars($mantenimiento['usuario'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
@@ -133,29 +154,73 @@ include('../layout/parte1.php');
                                         <?php echo htmlspecialchars($mantenimiento['observacion'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
                                     </td>
 
+                                    <!-- ACCIONES ORGANIZADAS VERTICALMENTE -->
                                     <td>
-                                        <div class="btn-group">
-                                            <a href="show.php?id=<?php echo $id_mantenimiento; ?>" class="btn btn-info btn-sm"
-                                                title="Ver detalles">
+
+                                        <div style="display: flex; flex-direction: column; gap: 5px; min-width: 145px;">
+
+                                            <!-- VER DETALLES -->
+                                            <a href="show.php?id=<?php echo $id_mantenimiento; ?>"
+                                               class="btn btn-info btn-sm btn-block">
+
                                                 <i class="fas fa-eye"></i>
-                                                Ver
+                                                Ver detalles
+
                                             </a>
-                                            <?php if ($rol_sesion === 'administrador') { ?>
+
+                                            <!-- EDITAR Y ELIMINAR: ADMINISTRADOR -->
+                                            <?php if ($rol_actual === 'administrador') { ?>
+
                                                 <a href="update.php?id=<?php echo $id_mantenimiento; ?>"
-                                                    class="btn btn-success btn-sm">
-                                                    <i class="fas fa-pencil-alt"></i> Editar
+                                                   class="btn btn-success btn-sm btn-block">
+
+                                                    <i class="fas fa-pencil-alt"></i>
+                                                    Editar
+
                                                 </a>
+
                                                 <a href="delete.php?id=<?php echo $id_mantenimiento; ?>"
-                                                    class="btn btn-danger btn-sm">
-                                                    <i class="fas fa-trash-alt"></i> Eliminar
+                                                   class="btn btn-danger btn-sm btn-block">
+
+                                                    <i class="fas fa-trash-alt"></i>
+                                                    Eliminar
+
                                                 </a>
+
                                             <?php } ?>
+
+                                            <!-- FINALIZAR: SOLO SOPORTE TÉCNICO -->
+                                            <?php if ($es_soporte && $estado === 'aceptado') { ?>
+
+                                                <form action="../app/controllers/mantenimiento/finalizar.php"
+                                                      method="POST"
+                                                      style="margin: 0;"
+                                                      onsubmit="return confirm('¿Confirmas que el mantenimiento ya fue finalizado? Se notificará al personal y a los administradores.');">
+
+                                                    <input type="hidden"
+                                                           name="id_mantenimiento"
+                                                           value="<?php echo $id_mantenimiento; ?>">
+
+                                                    <button type="submit"
+                                                            class="btn btn-primary btn-sm btn-block">
+
+                                                        <i class="fas fa-check-double"></i>
+                                                        Mantenimiento finalizado
+
+                                                    </button>
+
+                                                </form>
+
+                                            <?php } ?>
+
                                         </div>
+
                                     </td>
 
                                 </tr>
 
                             <?php } ?>
+
                         </tbody>
 
                     </table>

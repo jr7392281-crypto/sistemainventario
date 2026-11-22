@@ -45,9 +45,7 @@ include('../app/controllers/componentes/listado_componentes.php');
                                 </tr>
                             <?php } else { ?>
                                 <?php foreach ($componentes_datos as $componente) {
-                                    $stock = (int) $componente['stock_actual'];
-                                    $minimo = (int) $componente['stock_minimo'];
-                                    $stockBajo = $stock <= $minimo;
+                                    $stockBajo = $componente['stock_actual'] <= $componente['stock_minimo'];
                                 ?>
                                     <tr>
                                         <td><?php echo htmlspecialchars($componente['codigo'], ENT_QUOTES, 'UTF-8'); ?></td>
@@ -70,11 +68,11 @@ include('../app/controllers/componentes/listado_componentes.php');
                                         <td><?php echo htmlspecialchars($componente['tipo_componente'], ENT_QUOTES, 'UTF-8'); ?></td>
                                         <td class="text-center">
                                             <span class="badge badge-<?php echo $stockBajo ? 'warning' : 'success'; ?>">
-                                                <?php echo $stock; ?>
+                                                <?php echo $componente['stock_actual']; ?>
                                             </span>
                                             <?php if ($stockBajo) { ?><small class="d-block text-danger">Stock bajo</small><?php } ?>
                                         </td>
-                                        <td class="text-center"><?php echo $minimo; ?></td>
+                                        <td class="text-center"><?php echo $componente['stock_minimo']; ?></td>
                                     </tr>
                                 <?php } ?>
                             <?php } ?>
