@@ -57,9 +57,9 @@ include('../app/controllers/areas/listado_de_areas.php');
                                                         $contador_de_id_impresoras = $contador_de_id_impresoras + 1;
                                                     }
 
-                                                    $codigo_impresora = 'Muni-imp' . str_pad(
+                                                    $codigo_impresora = 'IMP-' . str_pad(
                                                         $contador_de_id_impresoras,
-                                                        3,
+                                                        4,
                                                         '0',
                                                         STR_PAD_LEFT
                                                     );                                        

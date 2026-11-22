@@ -95,10 +95,10 @@ include('../app/controllers/areas/listado_de_areas.php');
                                                     }
 
                                                     $codigo_equipo =
-                                                        "Muni-Pc" .
+                                                        "EQ-" .
                                                         str_pad(
                                                             $contador_de_id_equipos,
-                                                            3,
+                                                            4,
                                                             "0",
                                                             STR_PAD_LEFT
                                                         );
