@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 20-11-2026 a las 17:37:00
+-- Tiempo de generación: 22-11-2026 a las 21:31:55
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -39,12 +39,8 @@ CREATE TABLE `tb_areas` (
 --
 
 INSERT INTO `tb_areas` (`id_area`, `nombre`, `fecha_registro`, `fecha_actualizacion`) VALUES
-(1, 'tesoreria', '2026-09-29 17:31:21', '2026-10-02 19:48:42'),
-(2, 'administracion', '2026-10-02 18:18:09', '2026-10-03 18:36:37'),
-(3, 'contabilidad', '2026-10-02 18:23:03', '2026-10-02 19:28:27'),
-(4, 'logistica', '2026-10-02 18:38:47', '2026-10-02 19:28:27'),
-(5, 'biblioteca', '2026-10-02 18:39:11', '2026-10-02 19:28:27'),
-(6, 'sistemas', '2026-10-22 17:47:23', '2026-10-22 17:47:23');
+(6, 'sistemas', '2026-10-22 17:47:23', '2026-10-22 17:47:23'),
+(7, 'obras', '2026-11-20 19:38:03', '2026-11-20 19:38:03');
 
 -- --------------------------------------------------------
 
@@ -57,25 +53,15 @@ CREATE TABLE `tb_componentes` (
   `codigo` varchar(50) NOT NULL,
   `nombre` varchar(120) NOT NULL,
   `tipo_componente` varchar(50) NOT NULL,
+  `aplica_a` enum('Equipo','Impresora','Ambos') NOT NULL DEFAULT 'Ambos',
   `marca` varchar(80) DEFAULT NULL,
-  `capacidad` varchar(30) DEFAULT NULL,
   `especificacion` varchar(100) DEFAULT NULL,
   `stock_actual` int(10) UNSIGNED NOT NULL DEFAULT 0,
   `stock_minimo` int(10) UNSIGNED NOT NULL DEFAULT 0,
-  `unidad` varchar(20) NOT NULL DEFAULT 'unidad',
-  `activo` tinyint(1) NOT NULL DEFAULT 1,
+  `estado` tinyint(1) NOT NULL DEFAULT 1,
   `fecha_registro` datetime DEFAULT current_timestamp(),
   `fecha_actualizacion` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `tb_componentes`
---
-
-INSERT INTO `tb_componentes` (`id_componente`, `codigo`, `nombre`, `tipo_componente`, `marca`, `capacidad`, `especificacion`, `stock_actual`, `stock_minimo`, `unidad`, `activo`, `fecha_registro`, `fecha_actualizacion`) VALUES
-(6, 'RAM-DDR4-SODIMM-8G', 'Memoria RAM DDR4 8 GB SODIMM', 'Memoria RAM', NULL, '8 GB', 'DDR4 3200 MHz, SODIMM (laptop)', 2, 1, 'unidad', 1, '2026-11-20 01:55:31', '2026-11-20 01:55:31'),
-(7, 'PSU-ATX-500W', 'Fuente de poder ATX 500 W', 'Fuente de poder', NULL, '500 W', 'ATX', 2, 1, 'unidad', 1, '2026-11-20 01:55:31', '2026-11-20 01:55:31'),
-(8, 'INS-PASTA-4G', 'Pasta térmica 4 g', 'Insumo de mantenimiento', NULL, '4 g', 'Jeringa', 3, 2, 'unidad', 1, '2026-11-20 01:55:31', '2026-11-20 01:55:31');
 
 -- --------------------------------------------------------
 
@@ -103,14 +89,6 @@ CREATE TABLE `tb_equipos` (
   `fecha_actualizacion` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `tb_equipos`
---
-
-INSERT INTO `tb_equipos` (`id_equipo`, `codigo`, `nombre_dispositivo`, `procesador`, `ram`, `tarjeta_grafica`, `sistema_operativo`, `almacenamiento`, `monitor`, `ip`, `mouse`, `teclado`, `id_area`, `estado`, `observacion`, `fecha_registro`, `fecha_actualizacion`) VALUES
-(1, 'Muni-Pc001', 'PC PRO', 'intel', '16 GB', 'NVIDIA', 'Windows 10', '512 GB SSD', '24 pulgadas', '192.198.155', 'logitech', 'logitech', 1, 'Mantenimiento', '', '2026-10-06 16:55:12', '2026-10-10 17:27:26'),
-(2, 'Muni-Pc002', 'leno', 'intelcorrei7', '9 GB', 'integrada', 'Windows 10 ', '500 SSD', '18 pulgadas', '190.192.158', 'Logitech', 'Logitech', 5, 'Operativo', '', '2026-11-18 21:54:42', '2026-11-18 21:54:42');
-
 -- --------------------------------------------------------
 
 --
@@ -130,14 +108,6 @@ CREATE TABLE `tb_impresoras` (
   `fecha_registro` datetime DEFAULT current_timestamp(),
   `fecha_actualizacion` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `tb_impresoras`
---
-
-INSERT INTO `tb_impresoras` (`id_impresora`, `codigo`, `fabricante`, `modelo`, `tipo_impresora`, `tipo_impresion`, `id_area`, `estado`, `observacion`, `fecha_registro`, `fecha_actualizacion`) VALUES
-(6, 'Muni-imp001', 'EPSON', 'Smart tank  790', 'Multifuncional', 'tinta', 2, 'Dañada', '', '2026-10-06 18:32:05', '2026-11-05 13:19:28'),
-(7, 'Muni-imp002', 'EPSON', 'Smart tank 790', 'multifuncional', 'laser', 6, 'En reparación', '', '2026-11-05 13:22:07', '2026-11-05 13:22:07');
 
 -- --------------------------------------------------------
 
@@ -159,16 +129,6 @@ CREATE TABLE `tb_mantenimientos` (
   `fecha_registro` datetime DEFAULT current_timestamp()
 ) ;
 
---
--- Volcado de datos para la tabla `tb_mantenimientos`
---
-
-INSERT INTO `tb_mantenimientos` (`id_mantenimiento`, `id_equipo`, `id_impresora`, `id_usuario`, `fecha`, `tipo_mantenimiento`, `observacion`, `fecha_registro`) VALUES
-(2, 1, NULL, 1, '2026-10-09', 'Preventivo', 'no enciende', '2026-10-09 17:42:11'),
-(3, NULL, 6, 1, '2026-10-09', 'Correctivo', 'se rompio el escaner', '2026-10-09 18:03:19'),
-(4, NULL, 6, 1, '2026-10-09', 'Correctivo', 'se apaga sola', '2026-10-09 18:21:37'),
-(5, 1, NULL, 1, '2026-10-09', 'Correctivo', 'se apaga sola', '2026-10-09 18:22:08');
-
 -- --------------------------------------------------------
 
 --
@@ -189,6 +149,25 @@ CREATE TABLE `tb_movimientos_stock` (
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `tb_notificaciones`
+--
+
+CREATE TABLE `tb_notificaciones` (
+  `id_notificacion` int(11) NOT NULL,
+  `id_usuario_destino` int(11) NOT NULL,
+  `id_usuario_origen` int(11) DEFAULT NULL,
+  `id_mantenimiento` int(11) DEFAULT NULL,
+  `tipo` varchar(40) NOT NULL,
+  `titulo` varchar(120) NOT NULL,
+  `mensaje` varchar(255) NOT NULL,
+  `leida` tinyint(1) NOT NULL DEFAULT 0,
+  `fecha_registro` datetime NOT NULL DEFAULT current_timestamp(),
+  `fecha_lectura` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `tb_password_resets`
 --
 
@@ -200,19 +179,6 @@ CREATE TABLE `tb_password_resets` (
   `fecha_uso` datetime DEFAULT NULL,
   `fecha_registro` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `tb_password_resets`
---
-
-INSERT INTO `tb_password_resets` (`id_reset`, `id_usuario`, `token_hash`, `fecha_expiracion`, `fecha_uso`, `fecha_registro`) VALUES
-(4, 1, '813eb57869e43ca99cb9112ef3bbe7e78ab3df473569a8a3ed91fc1ff8e5e3f3', '2026-10-16 19:44:48', '2026-10-16 18:46:01', '2026-10-16 18:44:48'),
-(5, 1, 'd8ba194f4b89b66cb22af69292584ed1049db34177840270a14af19d452dd074', '2026-10-16 19:46:01', '2026-10-16 18:58:52', '2026-10-16 18:46:01'),
-(6, 1, 'd253e16a4bac305642ee50d8f9b9f4b7e2a4552b2bdf82bd4173b8679f7f7fe9', '2026-10-16 19:58:52', '2026-10-16 18:59:42', '2026-10-16 18:58:52'),
-(7, 1, 'b71dfb6f8b37087fb637df002d0cac0b491ca42694d13d885271654d6ac7637c', '2026-10-16 19:59:42', '2026-10-16 19:05:24', '2026-10-16 18:59:42'),
-(8, 1, 'b043f931c2df9879afc7ec341e64f3ca8a0011058553745c0da4c43474f1efa5', '2026-10-16 20:05:24', '2026-10-16 19:11:53', '2026-10-16 19:05:24'),
-(9, 1, '154b17eb9852ec5f1a669ef21e12658f92e3546d8aceab89cee91298b7202ce4', '2026-10-16 20:11:53', '2026-10-16 19:13:02', '2026-10-16 19:11:53'),
-(10, 1, '838efcf3c471c68a30bcc7f8850cdb3964a1175f835b0527ef488aac3da005db', '2026-10-16 20:13:02', NULL, '2026-10-16 19:13:02');
 
 -- --------------------------------------------------------
 
@@ -233,10 +199,9 @@ CREATE TABLE `tb_roles` (
 
 INSERT INTO `tb_roles` (`id_rol`, `rol`, `fecha_registro`, `fecha_actualizacion`) VALUES
 (1, 'administrador', '2026-09-29 17:14:19', '2026-11-19 17:25:13'),
-(3, 'usuario', '2026-10-02 18:18:28', '2026-10-24 22:39:29'),
+(3, 'personal', '2026-10-02 18:18:28', '2026-11-21 21:00:40'),
 (4, 'encargado de inventario', '2026-11-18 21:38:13', '2026-11-18 21:38:13'),
 (5, 'super administrador', '2026-11-20 01:25:44', '2026-11-20 01:25:44'),
-(6, 'abastecedor', '2026-11-20 01:26:57', '2026-11-20 01:26:57'),
 (7, 'soporte tecnico', '2026-11-20 01:27:12', '2026-11-20 01:27:12');
 
 -- --------------------------------------------------------
@@ -261,9 +226,7 @@ CREATE TABLE `tb_usuarios` (
 --
 
 INSERT INTO `tb_usuarios` (`id_usuario`, `nombres`, `email`, `password_user`, `id_rol`, `id_area`, `fecha_registro`, `fecha_actualizacion`) VALUES
-(1, 'jose', 'jr7392281@gmail.com', '$2y$10$9r4f9tOC7D0wOuLKOUNfDOonrEC0I4khbvKL55/9zCeALJoiWFFzi', 1, 6, '2026-09-29 18:05:55', '2026-10-22 17:47:35'),
-(7, 'raul', 'raul@gmail.com', '$2y$10$fvVk2CiA0DL1CvfHgBuLUuS74lb0h2ERBloqdTA7PAtsWI9oVzBWy', 3, 1, '2026-10-22 17:49:10', '2026-10-22 17:49:10'),
-(8, 'Juana', 'Jun@gmail.com', '$2y$10$tc//lhuY8E86D1/JqhG0audhUKa4OUBOoVV0Px8uIhu/G.APe0rCG', 4, 5, '2026-10-24 22:40:04', '2026-11-18 21:47:08');
+(1, 'jose', 'jr7392281@gmail.com', '$2y$10$9r4f9tOC7D0wOuLKOUNfDOonrEC0I4khbvKL55/9zCeALJoiWFFzi', 1, 6, '2026-09-29 18:05:55', '2026-10-22 17:47:35');
 
 --
 -- Índices para tablas volcadas
@@ -304,7 +267,7 @@ ALTER TABLE `tb_mantenimientos`
   ADD KEY `fk_mantenimientos_equipos` (`id_equipo`),
   ADD KEY `fk_mantenimientos_impresoras` (`id_impresora`),
   ADD KEY `fk_mantenimiento_usuario` (`id_usuario`),
-  ADD KEY `idx_mantenimientos_tecnico` (`id_tecnico_asignado`);
+  ADD KEY `fk_mantenimientos_tecnico` (`id_tecnico_asignado`);
 
 --
 -- Indices de la tabla `tb_movimientos_stock`
@@ -314,6 +277,15 @@ ALTER TABLE `tb_movimientos_stock`
   ADD KEY `id_componente` (`id_componente`),
   ADD KEY `id_usuario` (`id_usuario`),
   ADD KEY `id_mantenimiento` (`id_mantenimiento`);
+
+--
+-- Indices de la tabla `tb_notificaciones`
+--
+ALTER TABLE `tb_notificaciones`
+  ADD PRIMARY KEY (`id_notificacion`),
+  ADD KEY `idx_notificaciones_destino_leida_fecha` (`id_usuario_destino`,`leida`,`fecha_registro`),
+  ADD KEY `idx_notificaciones_mantenimiento` (`id_mantenimiento`),
+  ADD KEY `fk_notificaciones_origen` (`id_usuario_origen`);
 
 --
 -- Indices de la tabla `tb_password_resets`
@@ -345,13 +317,13 @@ ALTER TABLE `tb_usuarios`
 -- AUTO_INCREMENT de la tabla `tb_areas`
 --
 ALTER TABLE `tb_areas`
-  MODIFY `id_area` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id_area` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `tb_componentes`
 --
 ALTER TABLE `tb_componentes`
-  MODIFY `id_componente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id_componente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT de la tabla `tb_equipos`
@@ -375,7 +347,13 @@ ALTER TABLE `tb_mantenimientos`
 -- AUTO_INCREMENT de la tabla `tb_movimientos_stock`
 --
 ALTER TABLE `tb_movimientos_stock`
-  MODIFY `id_movimiento` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_movimiento` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT de la tabla `tb_notificaciones`
+--
+ALTER TABLE `tb_notificaciones`
+  MODIFY `id_notificacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT de la tabla `tb_password_resets`
@@ -393,7 +371,7 @@ ALTER TABLE `tb_roles`
 -- AUTO_INCREMENT de la tabla `tb_usuarios`
 --
 ALTER TABLE `tb_usuarios`
-  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- Restricciones para tablas volcadas
@@ -416,9 +394,9 @@ ALTER TABLE `tb_impresoras`
 --
 ALTER TABLE `tb_mantenimientos`
   ADD CONSTRAINT `fk_mantenimiento_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `tb_usuarios` (`id_usuario`) ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_mantenimientos_tecnico` FOREIGN KEY (`id_tecnico_asignado`) REFERENCES `tb_usuarios` (`id_usuario`) ON DELETE RESTRICT ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_mantenimientos_equipos` FOREIGN KEY (`id_equipo`) REFERENCES `tb_equipos` (`id_equipo`) ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_mantenimientos_impresoras` FOREIGN KEY (`id_impresora`) REFERENCES `tb_impresoras` (`id_impresora`) ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_mantenimientos_impresoras` FOREIGN KEY (`id_impresora`) REFERENCES `tb_impresoras` (`id_impresora`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_mantenimientos_tecnico` FOREIGN KEY (`id_tecnico_asignado`) REFERENCES `tb_usuarios` (`id_usuario`) ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `tb_movimientos_stock`
@@ -427,6 +405,14 @@ ALTER TABLE `tb_movimientos_stock`
   ADD CONSTRAINT `tb_movimientos_stock_ibfk_1` FOREIGN KEY (`id_componente`) REFERENCES `tb_componentes` (`id_componente`),
   ADD CONSTRAINT `tb_movimientos_stock_ibfk_2` FOREIGN KEY (`id_usuario`) REFERENCES `tb_usuarios` (`id_usuario`),
   ADD CONSTRAINT `tb_movimientos_stock_ibfk_3` FOREIGN KEY (`id_mantenimiento`) REFERENCES `tb_mantenimientos` (`id_mantenimiento`);
+
+--
+-- Filtros para la tabla `tb_notificaciones`
+--
+ALTER TABLE `tb_notificaciones`
+  ADD CONSTRAINT `fk_notificaciones_destino` FOREIGN KEY (`id_usuario_destino`) REFERENCES `tb_usuarios` (`id_usuario`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_notificaciones_mantenimiento` FOREIGN KEY (`id_mantenimiento`) REFERENCES `tb_mantenimientos` (`id_mantenimiento`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_notificaciones_origen` FOREIGN KEY (`id_usuario_origen`) REFERENCES `tb_usuarios` (`id_usuario`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `tb_password_resets`
@@ -440,26 +426,6 @@ ALTER TABLE `tb_password_resets`
 ALTER TABLE `tb_usuarios`
   ADD CONSTRAINT `fk_usuario_area` FOREIGN KEY (`id_area`) REFERENCES `tb_areas` (`id_area`) ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_usuarios_roles` FOREIGN KEY (`id_rol`) REFERENCES `tb_roles` (`id_rol`) ON UPDATE CASCADE;
-
--- Notificaciones internas para reportes de mantenimiento.
-CREATE TABLE `tb_notificaciones` (
-  `id_notificacion` int(11) NOT NULL AUTO_INCREMENT,
-  `id_usuario_destino` int(11) NOT NULL,
-  `id_usuario_origen` int(11) DEFAULT NULL,
-  `id_mantenimiento` int(11) DEFAULT NULL,
-  `tipo` varchar(40) NOT NULL,
-  `titulo` varchar(120) NOT NULL,
-  `mensaje` varchar(255) NOT NULL,
-  `leida` tinyint(1) NOT NULL DEFAULT 0,
-  `fecha_registro` datetime NOT NULL DEFAULT current_timestamp(),
-  `fecha_lectura` datetime DEFAULT NULL,
-  PRIMARY KEY (`id_notificacion`),
-  KEY `idx_notificaciones_destino_leida_fecha` (`id_usuario_destino`, `leida`, `fecha_registro`),
-  KEY `idx_notificaciones_mantenimiento` (`id_mantenimiento`),
-  CONSTRAINT `fk_notificaciones_destino` FOREIGN KEY (`id_usuario_destino`) REFERENCES `tb_usuarios` (`id_usuario`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_notificaciones_origen` FOREIGN KEY (`id_usuario_origen`) REFERENCES `tb_usuarios` (`id_usuario`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `fk_notificaciones_mantenimiento` FOREIGN KEY (`id_mantenimiento`) REFERENCES `tb_mantenimientos` (`id_mantenimiento`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
