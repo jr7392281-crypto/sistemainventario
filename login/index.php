@@ -1,4 +1,8 @@
-<html lang="en">
+<?php
+session_start();
+?>
+<!DOCTYPE html>
+<html lang="es">
 
 <head>
     <meta charset="utf-8">
@@ -21,7 +25,6 @@
 <body class="hold-transition login-page">
     <div class="login-box">
         <?php
-        session_start();
         if (isset($_SESSION['mensaje'])) {
             $respuesta = $_SESSION['mensaje'];
             $icono = $_SESSION['icono'] ?? 'error';
@@ -77,7 +80,6 @@
             <p class="mt-3 mb-0 text-center">
                 <a href="olvidar.php">¿Olvidaste tu contraseña?</a>
             </p>
-
         </div>
 
     </div>

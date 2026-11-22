@@ -14,14 +14,15 @@ $password_user = $_POST['password_user'] ?? '';
 $password_repeat = $_POST['password_repeat'] ?? '';
 
 $consulta_usuario_actual = $pdo->prepare(
-    'SELECT r.rol
+    'SELECT r.rol, u.email, u.nombres
      FROM tb_usuarios AS u
      INNER JOIN tb_roles AS r ON r.id_rol = u.id_rol
      WHERE u.id_usuario = :id_usuario
      LIMIT 1'
 );
 $consulta_usuario_actual->execute([':id_usuario' => $id_usuario]);
-$rol_usuario_actualizado = strtolower(trim((string) $consulta_usuario_actual->fetchColumn()));
+$usuario_actual = $consulta_usuario_actual->fetch(PDO::FETCH_ASSOC);
+$rol_usuario_actualizado = strtolower(trim((string) ($usuario_actual['rol'] ?? '')));
 
 $consulta_rol_nuevo = $pdo->prepare('SELECT rol FROM tb_roles WHERE id_rol = :id_rol LIMIT 1');
 $consulta_rol_nuevo->execute([':id_rol' => $rol]);
@@ -56,6 +57,15 @@ if ($password_user !== '' && $password_user !== $password_repeat) {
     exit;
 }
 
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $_SESSION['mensaje'] = 'Ingresa un correo válido.';
+    $_SESSION['icono'] = 'error';
+    header('Location: ' . $URL . '/usuarios/');
+    exit;
+}
+
+$cambio_email = strtolower(trim((string) $usuario_actual['email'])) !== strtolower($email);
+
 $sql = "UPDATE tb_usuarios
         SET nombres = :nombres,
             email = :email,
@@ -65,6 +75,10 @@ $sql = "UPDATE tb_usuarios
 
 if ($password_user !== '') {
     $sql .= ', password_user = :password_user';
+}
+
+if ($cambio_email) {
+    $sql .= ', email_verificado = 0, email_verificado_at = NULL';
 }
 
 $sql .= ' WHERE id_usuario = :id_usuario';
@@ -82,14 +96,33 @@ if ($password_user !== '') {
     $sentencia->bindValue(':password_user', $password_hash);
 }
 
-if ($sentencia->execute()) {
-    $_SESSION['mensaje'] = 'Se actualizó el usuario correctamente.';
-    $_SESSION['icono'] = 'success';
-    header('Location: ' . $URL . '/usuarios/');
-} else {
+try {
+    $sentencia->execute();
+
+    if ($cambio_email) {
+        try {
+            require_once __DIR__ . '/../../email_verificacion.php';
+            enviar_enlace_verificacion($pdo, [
+                'id_usuario' => $id_usuario,
+                'nombres' => $nombres,
+                'email' => $email,
+            ], $URL);
+            $_SESSION['mensaje'] = 'Usuario actualizado. Se envió un enlace para verificar el nuevo correo.';
+            $_SESSION['icono'] = 'success';
+        } catch (Throwable $e) {
+            error_log('No se pudo enviar la verificación al cambiar correo: ' . $e->getMessage());
+            $_SESSION['mensaje'] = 'Usuario actualizado, pero no se pudo enviar el enlace de verificación. Contacta al administrador.';
+            $_SESSION['icono'] = 'warning';
+        }
+    } else {
+        $_SESSION['mensaje'] = 'Se actualizó el usuario correctamente.';
+        $_SESSION['icono'] = 'success';
+    }
+} catch (PDOException $e) {
+    error_log('Error al actualizar usuario: ' . $e->getMessage());
     $_SESSION['mensaje'] = 'No se pudo actualizar el usuario.';
     $_SESSION['icono'] = 'error';
-    header('Location: ' . $URL . '/usuarios/');
 }
+header('Location: ' . $URL . '/usuarios/');
 exit;
 ?>

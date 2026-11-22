@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 22-11-2026 a las 21:31:55
+-- Tiempo de generación: 23-11-2026 a las 00:02:29
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -61,6 +61,20 @@ CREATE TABLE `tb_componentes` (
   `estado` tinyint(1) NOT NULL DEFAULT 1,
   `fecha_registro` datetime DEFAULT current_timestamp(),
   `fecha_actualizacion` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tb_email_verification`
+--
+
+CREATE TABLE `tb_email_verification` (
+  `id_verificacion` int(11) NOT NULL,
+  `id_usuario` int(11) NOT NULL,
+  `token_hash` char(64) NOT NULL,
+  `fecha_expiracion` datetime NOT NULL,
+  `fecha_registro` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -218,15 +232,17 @@ CREATE TABLE `tb_usuarios` (
   `id_rol` int(11) NOT NULL,
   `id_area` int(11) DEFAULT NULL,
   `fecha_registro` datetime DEFAULT current_timestamp(),
-  `fecha_actualizacion` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `fecha_actualizacion` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `email_verificado` tinyint(1) NOT NULL DEFAULT 0,
+  `email_verificado_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `tb_usuarios`
 --
 
-INSERT INTO `tb_usuarios` (`id_usuario`, `nombres`, `email`, `password_user`, `id_rol`, `id_area`, `fecha_registro`, `fecha_actualizacion`) VALUES
-(1, 'jose', 'jr7392281@gmail.com', '$2y$10$9r4f9tOC7D0wOuLKOUNfDOonrEC0I4khbvKL55/9zCeALJoiWFFzi', 1, 6, '2026-09-29 18:05:55', '2026-10-22 17:47:35');
+INSERT INTO `tb_usuarios` (`id_usuario`, `nombres`, `email`, `password_user`, `id_rol`, `id_area`, `fecha_registro`, `fecha_actualizacion`, `email_verificado`, `email_verificado_at`) VALUES
+(1, 'jose', 'jr7392281@gmail.com', '$2y$10$9r4f9tOC7D0wOuLKOUNfDOonrEC0I4khbvKL55/9zCeALJoiWFFzi', 1, 6, '2026-09-29 18:05:55', '2026-11-22 17:38:08', 1, NULL);
 
 --
 -- Índices para tablas volcadas
@@ -244,6 +260,14 @@ ALTER TABLE `tb_areas`
 ALTER TABLE `tb_componentes`
   ADD PRIMARY KEY (`id_componente`),
   ADD UNIQUE KEY `uq_componentes_codigo` (`codigo`);
+
+--
+-- Indices de la tabla `tb_email_verification`
+--
+ALTER TABLE `tb_email_verification`
+  ADD PRIMARY KEY (`id_verificacion`),
+  ADD UNIQUE KEY `uq_email_verification_token` (`token_hash`),
+  ADD UNIQUE KEY `uq_email_verification_usuario` (`id_usuario`);
 
 --
 -- Indices de la tabla `tb_equipos`
@@ -326,6 +350,12 @@ ALTER TABLE `tb_componentes`
   MODIFY `id_componente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
+-- AUTO_INCREMENT de la tabla `tb_email_verification`
+--
+ALTER TABLE `tb_email_verification`
+  MODIFY `id_verificacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT de la tabla `tb_equipos`
 --
 ALTER TABLE `tb_equipos`
@@ -371,11 +401,17 @@ ALTER TABLE `tb_roles`
 -- AUTO_INCREMENT de la tabla `tb_usuarios`
 --
 ALTER TABLE `tb_usuarios`
-  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- Restricciones para tablas volcadas
 --
+
+--
+-- Filtros para la tabla `tb_email_verification`
+--
+ALTER TABLE `tb_email_verification`
+  ADD CONSTRAINT `fk_email_verification_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `tb_usuarios` (`id_usuario`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `tb_equipos`
