@@ -6,12 +6,11 @@ include('../app/controllers/mantenimiento/show_mantenimiento.php');
 include('../layout/parte1.php');
 
 // ======================================================
-// IDENTIFICAR EL ROL DEL USUARIO
+// IDENTIFICAR ROL
 // ======================================================
 
 $rol_actual = strtolower(trim($rol_sesion ?? ''));
 
-// Permisos.
 $es_administrador = in_array(
     $rol_actual,
     ['administrador', 'super administrador'],
@@ -20,10 +19,8 @@ $es_administrador = in_array(
 
 $es_soporte = ($rol_actual === 'soporte tecnico');
 
-// Obtener el estado actual.
 $estado_actual = strtolower(trim($estado_mantenimiento ?? 'reportado'));
 
-// Determinar las acciones disponibles.
 $puede_enviar = $es_administrador &&
     in_array($estado_actual, ['reportado', 'rechazado', ''], true);
 
@@ -31,9 +28,38 @@ $puede_atender = $es_soporte && (
     $estado_actual === 'enviado' ||
     ($estado_actual === 'aceptado' && empty($tecnico_asignado))
 );
+
 $puede_resolver = $es_soporte &&
     $estado_actual === 'aceptado' &&
     (int) ($tecnico_asignado ?? 0) === (int) $id_usuario_sesion;
+
+// ======================================================
+// LISTAR TÉCNICOS Y CARGA DE TRABAJO
+// ======================================================
+
+$tecnicos = [];
+
+if ($puede_enviar) {
+
+    $consulta = $pdo->prepare("
+        SELECT
+            u.id_usuario,
+            u.nombres,
+            COUNT(m.id_mantenimiento) AS mantenimientos_activos
+        FROM tb_usuarios u
+        INNER JOIN tb_roles r
+            ON r.id_rol = u.id_rol
+        LEFT JOIN tb_mantenimientos m
+            ON m.id_tecnico_asignado = u.id_usuario
+            AND LOWER(TRIM(m.estado)) IN ('enviado', 'aceptado')
+        WHERE LOWER(TRIM(r.rol)) = 'soporte tecnico'
+        GROUP BY u.id_usuario, u.nombres
+        ORDER BY mantenimientos_activos ASC, u.nombres ASC
+    ");
+
+    $consulta->execute();
+    $tecnicos = $consulta->fetchAll(PDO::FETCH_ASSOC);
+}
 
 // ======================================================
 // TEXTO DEL ESTADO
@@ -105,33 +131,35 @@ switch ($estado_actual) {
 
                     <div class="row">
 
+                        <!-- FECHA -->
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Fecha</label>
                                 <input type="date"
-                                       class="form-control"
-                                       value="<?php echo htmlspecialchars($fecha ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                                       readonly>
+                                    class="form-control"
+                                    value="<?php echo htmlspecialchars($fecha ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                    readonly>
                             </div>
                         </div>
 
+                        <!-- TIPO -->
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Tipo de mantenimiento</label>
                                 <input type="text"
-                                       class="form-control"
-                                       value="<?php echo htmlspecialchars($tipo_mantenimiento ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                                       readonly>
+                                    class="form-control"
+                                    value="<?php echo htmlspecialchars($tipo_mantenimiento ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                    readonly>
                             </div>
                         </div>
 
-                        <!-- ESTADO DEL MANTENIMIENTO -->
+                        <!-- ESTADO -->
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Estado del reporte</label>
 
                                 <div class="form-control d-flex align-items-center"
-                                     style="height: 38px;">
+                                    style="height: 38px;">
 
                                     <span class="<?php echo $clase_estado; ?> font-weight-bold">
                                         <i class="fas <?php echo $icono_estado; ?> mr-2"></i>
@@ -142,75 +170,122 @@ switch ($estado_actual) {
                             </div>
                         </div>
 
+                        <!-- EQUIPO -->
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Equipo</label>
                                 <input type="text"
-                                       class="form-control"
-                                       value="<?php echo htmlspecialchars(trim(($codigo_equipo ?? '') . ' - ' . ($nombre_dispositivo ?? ''), ' -'), ENT_QUOTES, 'UTF-8'); ?>"
-                                       placeholder="Sin equipo asociado"
-                                       readonly>
+                                    class="form-control"
+                                    value="<?php echo htmlspecialchars(trim(($codigo_equipo ?? '') . ' - ' . ($nombre_dispositivo ?? ''), ' -'), ENT_QUOTES, 'UTF-8'); ?>"
+                                    placeholder="Sin equipo asociado"
+                                    readonly>
                             </div>
                         </div>
 
+                        <!-- IMPRESORA -->
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Impresora</label>
                                 <input type="text"
-                                       class="form-control"
-                                       value="<?php echo htmlspecialchars(trim(($codigo_impresora ?? '') . ' - ' . ($fabricante ?? '') . ' ' . ($modelo ?? ''), ' -'), ENT_QUOTES, 'UTF-8'); ?>"
-                                       placeholder="Sin impresora asociada"
-                                       readonly>
+                                    class="form-control"
+                                    value="<?php echo htmlspecialchars(trim(($codigo_impresora ?? '') . ' - ' . ($fabricante ?? '') . ' ' . ($modelo ?? ''), ' -'), ENT_QUOTES, 'UTF-8'); ?>"
+                                    placeholder="Sin impresora asociada"
+                                    readonly>
                             </div>
                         </div>
 
-                        <!-- ACCIONES DEL ADMINISTRADOR -->
+                        <!-- ================================================== -->
+                        <!-- ASIGNACIÓN DE TÉCNICO (ADMINISTRADOR) -->
+                        <!-- ================================================== -->
+
                         <?php if ($puede_enviar) { ?>
 
                             <div class="col-md-12">
+
                                 <div class="form-group">
 
-                                    <label>Gestionar solicitud</label>
-                                    <br>
+                                    <label>Asignar mantenimiento a soporte técnico</label>
 
-                                    <form action="../app/controllers/mantenimiento/enviar_encargado.php"
-                                          method="POST"
-                                          style="display: inline-block;"
-                                          onsubmit="return confirm('¿Estás seguro de enviar esta solicitud a Soporte técnico?');">
+                                    <form action="../app/controllers/mantenimiento/asignar_tecnico.php"
+                                        method="POST"
+                                        onsubmit="return confirm('¿Estás seguro de asignar este mantenimiento al técnico seleccionado?');">
 
                                         <input type="hidden"
-                                               name="id_mantenimiento"
-                                               value="<?php echo (int) $id_mantenimiento_get; ?>">
+                                            name="id_mantenimiento"
+                                            value="<?php echo (int) $id_mantenimiento_get; ?>">
 
-                                        <button type="submit" class="btn btn-primary">
-                                            <i class="fas fa-paper-plane"></i>
-                                            Enviar a Soporte técnico
-                                        </button>
+                                        <select name="id_tecnico"
+                                            class="form-control mb-2"
+                                            required>
+
+                                            <option value="">Seleccione un técnico</option>
+
+                                            <?php foreach ($tecnicos as $tecnico) { ?>
+
+                                                <?php
+                                                $cantidad = (int) $tecnico['mantenimientos_activos'];
+                                                $disponible = $cantidad < 5;
+                                                ?>
+
+                                                <option value="<?php echo (int) $tecnico['id_usuario']; ?>"
+                                                    <?php echo !$disponible ? 'disabled' : ''; ?>>
+
+                                                    <?php echo htmlspecialchars($tecnico['nombres'], ENT_QUOTES, 'UTF-8'); ?>
+
+                                                    (<?php echo $cantidad; ?>/5 mantenimientos)
+
+                                                    <?php echo !$disponible ? '- Límite alcanzado' : ''; ?>
+
+                                                </option>
+
+                                            <?php } ?>
+
+                                        </select>
+
+                                        <?php if (empty($tecnicos)) { ?>
+
+                                            <div class="alert alert-warning">
+                                                No hay técnicos de soporte registrados.
+                                            </div>
+
+                                        <?php } else { ?>
+
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-user-check"></i>
+                                                Asignar técnico y enviar
+                                            </button>
+
+                                        <?php } ?>
 
                                     </form>
 
                                 </div>
+
                             </div>
 
                         <?php } ?>
 
+                        <!-- ================================================== -->
                         <!-- ACCIONES DE SOPORTE TÉCNICO -->
+                        <!-- ================================================== -->
+
                         <?php if ($puede_atender) { ?>
 
                             <div class="col-md-12">
+
                                 <div class="form-group">
 
                                     <label>Atender solicitud</label>
                                     <br>
 
                                     <form action="../app/controllers/mantenimiento/aceptar.php"
-                                          method="POST"
-                                          style="display: inline-block;"
-                                          onsubmit="return confirm('¿Estás seguro de aceptar este mantenimiento?');">
+                                        method="POST"
+                                        style="display:inline-block;"
+                                        onsubmit="return confirm('¿Estás seguro de aceptar este mantenimiento?');">
 
                                         <input type="hidden"
-                                               name="id_mantenimiento"
-                                               value="<?php echo (int) $id_mantenimiento_get; ?>">
+                                            name="id_mantenimiento"
+                                            value="<?php echo (int) $id_mantenimiento_get; ?>">
 
                                         <button type="submit" class="btn btn-success">
                                             <i class="fas fa-check"></i>
@@ -220,13 +295,13 @@ switch ($estado_actual) {
                                     </form>
 
                                     <form action="../app/controllers/mantenimiento/rechazar.php"
-                                          method="POST"
-                                          style="display: inline-block;"
-                                          onsubmit="return confirm('¿Estás seguro de rechazar este mantenimiento?');">
+                                        method="POST"
+                                        style="display:inline-block;"
+                                        onsubmit="return confirm('¿Estás seguro de rechazar este mantenimiento?');">
 
                                         <input type="hidden"
-                                               name="id_mantenimiento"
-                                               value="<?php echo (int) $id_mantenimiento_get; ?>">
+                                            name="id_mantenimiento"
+                                            value="<?php echo (int) $id_mantenimiento_get; ?>">
 
                                         <button type="submit" class="btn btn-danger">
                                             <i class="fas fa-times"></i>
@@ -236,108 +311,192 @@ switch ($estado_actual) {
                                     </form>
 
                                 </div>
+
                             </div>
 
                         <?php } ?>
 
+                        <!-- SOLICITANTE -->
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label>Solicitante</label>
                                 <input type="text"
-                                       class="form-control"
-                                       value="<?php echo htmlspecialchars($usuario ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                                       readonly>
+                                    class="form-control"
+                                    value="<?php echo htmlspecialchars($usuario ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                    readonly>
                             </div>
                         </div>
 
+                        <!-- OBSERVACIÓN -->
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label>Observación</label>
                                 <textarea class="form-control"
-                                          rows="4"
-                                          readonly><?php echo htmlspecialchars($observacion ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                                    rows="4"
+                                    readonly><?php echo htmlspecialchars($observacion ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                             </div>
                         </div>
 
+                        <!-- TÉCNICO ASIGNADO -->
                         <?php if (!empty($nombre_tecnico)) { ?>
+
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>T&eacute;cnico asignado</label>
-                                    <input type="text" class="form-control" value="<?php echo htmlspecialchars($nombre_tecnico, ENT_QUOTES, 'UTF-8'); ?>" readonly>
+                                    <label>Técnico asignado</label>
+                                    <input type="text"
+                                        class="form-control"
+                                        value="<?php echo htmlspecialchars($nombre_tecnico, ENT_QUOTES, 'UTF-8'); ?>"
+                                        readonly>
                                 </div>
                             </div>
+
                         <?php } ?>
 
+                        <!-- SOLUCIÓN -->
                         <?php if ($estado_actual === 'resuelto' && trim((string) $solucion_mantenimiento) !== '') { ?>
+
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label>Soluci&oacute;n reportada por Soporte</label>
-                                    <textarea class="form-control" rows="4" readonly><?php echo htmlspecialchars($solucion_mantenimiento, ENT_QUOTES, 'UTF-8'); ?></textarea>
+                                    <label>Solución reportada por Soporte</label>
+                                    <textarea class="form-control"
+                                        rows="4"
+                                        readonly><?php echo htmlspecialchars($solucion_mantenimiento, ENT_QUOTES, 'UTF-8'); ?></textarea>
                                 </div>
                             </div>
+
                         <?php } ?>
 
+                        <!-- COMPONENTES UTILIZADOS -->
                         <?php if (!empty($componentes_usados)) { ?>
+
                             <div class="col-md-12">
+
                                 <label>Componentes utilizados</label>
+
                                 <div class="table-responsive">
+
                                     <table class="table table-bordered table-sm">
+
                                         <thead>
-                                            <tr><th>Componente</th><th>Cantidad</th><th>T&eacute;cnico</th><th>Fecha</th><th>Observaci&oacute;n</th></tr>
+                                            <tr>
+                                                <th>Componente</th>
+                                                <th>Cantidad</th>
+                                                <th>Técnico</th>
+                                                <th>Fecha</th>
+                                                <th>Observación</th>
+                                            </tr>
                                         </thead>
+
                                         <tbody>
+
                                             <?php foreach ($componentes_usados as $uso) { ?>
+
                                                 <tr>
-                                                    <td><?php echo htmlspecialchars($uso['codigo'] . ' - ' . $uso['nombre'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                                    <td>
+                                                        <?php echo htmlspecialchars($uso['codigo'] . ' - ' . $uso['nombre'], ENT_QUOTES, 'UTF-8'); ?>
+                                                    </td>
+
                                                     <td><?php echo (int) $uso['cantidad']; ?></td>
-                                                    <td><?php echo htmlspecialchars($uso['tecnico'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                                    <td><?php echo htmlspecialchars($uso['fecha_registro'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                                    <td><?php echo htmlspecialchars($uso['observacion'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+
+                                                    <td>
+                                                        <?php echo htmlspecialchars($uso['tecnico'], ENT_QUOTES, 'UTF-8'); ?>
+                                                    </td>
+
+                                                    <td>
+                                                        <?php echo htmlspecialchars($uso['fecha_registro'], ENT_QUOTES, 'UTF-8'); ?>
+                                                    </td>
+
+                                                    <td>
+                                                        <?php echo htmlspecialchars($uso['observacion'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
+                                                    </td>
                                                 </tr>
+
                                             <?php } ?>
+
                                         </tbody>
+
                                     </table>
+
                                 </div>
+
                             </div>
+
                         <?php } ?>
 
                     </div>
 
+                    <!-- BOTONES -->
                     <a href="index.php" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i>
                         Volver
                     </a>
 
+                    <!-- ACCIONES DEL TÉCNICO -->
                     <?php if ($puede_resolver) { ?>
-                        <a href="../componentes/movimientos.php?id_mantenimiento=<?php echo (int) $id_mantenimiento_get; ?>" class="btn btn-info">
-                            <i class="fas fa-boxes"></i> Registrar componentes usados
+
+                        <a href="../componentes/movimientos.php?id_mantenimiento=<?php echo (int) $id_mantenimiento_get; ?>"
+                            class="btn btn-info">
+
+                            <i class="fas fa-boxes"></i>
+                            Registrar componentes usados
+
                         </a>
-                        <form action="../app/controllers/mantenimiento/finalizar.php" method="POST" class="mt-3">
-                            <input type="hidden" name="id_mantenimiento" value="<?php echo (int) $id_mantenimiento_get; ?>">
+
+                        <form action="../app/controllers/mantenimiento/finalizar.php"
+                            method="POST"
+                            class="mt-3">
+
+                            <input type="hidden"
+                                name="id_mantenimiento"
+                                value="<?php echo (int) $id_mantenimiento_get; ?>">
+
                             <div class="form-group">
-                                <label for="solucion">Soluci&oacute;n aplicada</label>
-                                <textarea id="solucion" name="solucion" class="form-control" rows="4" maxlength="5000" required></textarea>
+
+                                <label for="solucion">Solución aplicada</label>
+
+                                <textarea id="solucion"
+                                    name="solucion"
+                                    class="form-control"
+                                    rows="4"
+                                    maxlength="5000"
+                                    required></textarea>
+
                             </div>
-                            <button type="submit" class="btn btn-primary" onclick="return confirm('¿Confirmas que este mantenimiento ya fue resuelto?');">
-                                <i class="fas fa-check-double"></i> Finalizar mantenimiento
+
+                            <button type="submit"
+                                class="btn btn-primary"
+                                onclick="return confirm('¿Confirmas que este mantenimiento ya fue resuelto?');">
+
+                                <i class="fas fa-check-double"></i>
+                                Finalizar mantenimiento
+
                             </button>
+
                         </form>
+
                     <?php } ?>
 
+                    <!-- EDITAR (ADMINISTRADOR) -->
                     <?php if ($es_administrador) { ?>
 
                         <a href="update.php?id=<?php echo (int) $id_mantenimiento_get; ?>"
-                           class="btn btn-success">
+                            class="btn btn-success">
+
                             <i class="fas fa-pencil-alt"></i>
                             Editar
+
                         </a>
 
                     <?php } ?>
 
                 </div>
+
             </div>
 
         </div>
+
     </div>
+
 </div>
+
 <?php include('../layout/parte2.php'); ?>

@@ -16,7 +16,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 // ======================================================
 // VERIFICAR PERMISOS
-// SOLO SOPORTE TÉCNICO PUEDE ACEPTAR
 // ======================================================
 
 $rol_actual = strtolower(trim($rol_sesion ?? ''));
@@ -31,7 +30,7 @@ if ($rol_actual !== 'soporte tecnico') {
 }
 
 // ======================================================
-// OBTENER ID DEL MANTENIMIENTO
+// OBTENER ID
 // ======================================================
 
 $id_mantenimiento = filter_input(
@@ -57,9 +56,7 @@ try {
 
     $pdo->beginTransaction();
 
-    // --------------------------------------------------
-    // OBTENER MANTENIMIENTO Y USUARIO SOLICITANTE
-    // --------------------------------------------------
+    // OBTENER MANTENIMIENTO
 
     $consulta = $pdo->prepare(
         "SELECT id_mantenimiento, id_usuario, estado, id_tecnico_asignado
@@ -78,44 +75,45 @@ try {
         throw new Exception('No se encontró el mantenimiento.');
     }
 
-    // --------------------------------------------------
-    // VERIFICAR ESTADO ACTUAL
-    // --------------------------------------------------
+    // VERIFICAR TÉCNICO ASIGNADO
+
+    if (
+        (int) $mantenimiento['id_tecnico_asignado'] !==
+        (int) $id_usuario_sesion
+    ) {
+        throw new Exception('Este mantenimiento no está asignado a tu usuario.');
+    }
+
+    // VERIFICAR ESTADO
 
     $estado_actual = strtolower(
         trim($mantenimiento['estado'] ?? '')
     );
 
-    if (!in_array($estado_actual, ['enviado', 'aceptado'], true) || !empty($mantenimiento['id_tecnico_asignado'])) {
-        throw new Exception(
-            'Este mantenimiento no está pendiente de atención o ya fue procesado.'
-        );
+    if ($estado_actual !== 'enviado') {
+        throw new Exception('Este mantenimiento ya fue procesado.');
     }
 
-    // --------------------------------------------------
     // ACTUALIZAR ESTADO
-    // --------------------------------------------------
 
     $actualizar = $pdo->prepare(
         "UPDATE tb_mantenimientos
-         SET estado = 'aceptado', id_tecnico_asignado = :id_tecnico
+         SET estado = 'aceptado'
          WHERE id_mantenimiento = :id
-           AND id_tecnico_asignado IS NULL
-           AND estado IN ('enviado', 'aceptado')"
+           AND id_tecnico_asignado = :tecnico
+           AND estado = 'enviado'"
     );
 
     $actualizar->execute([
-        ':id_tecnico' => (int) $id_usuario_sesion,
-        ':id' => $id_mantenimiento
+        ':id' => $id_mantenimiento,
+        ':tecnico' => (int) $id_usuario_sesion
     ]);
 
     if ($actualizar->rowCount() !== 1) {
-        throw new Exception('Otro técnico ya aceptó este mantenimiento.');
+        throw new Exception('No se pudo aceptar el mantenimiento.');
     }
 
-    // --------------------------------------------------
-    // NOTIFICAR AL USUARIO QUE REGISTRÓ EL MANTENIMIENTO
-    // --------------------------------------------------
+    // NOTIFICAR AL SOLICITANTE
 
     crearNotificacion(
         $pdo,
@@ -127,9 +125,7 @@ try {
         'Tu solicitud de mantenimiento ha sido aceptada por Soporte técnico y será atendida.'
     );
 
-    // --------------------------------------------------
     // CONFIRMAR TRANSACCIÓN
-    // --------------------------------------------------
 
     $pdo->commit();
 
@@ -148,9 +144,7 @@ try {
     $_SESSION['icono'] = 'error';
 }
 
-// ======================================================
 // REGRESAR AL DETALLE
-// ======================================================
 
 header(
     'Location: ' . $URL . '/mantenimiento/show.php?id=' . (int) $id_mantenimiento

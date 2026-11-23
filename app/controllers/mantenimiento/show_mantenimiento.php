@@ -81,3 +81,31 @@ $codigo_impresora = $mantenimiento_dato['codigo_impresora'];
 $fabricante = $mantenimiento_dato['fabricante'];
 $modelo = $mantenimiento_dato['modelo'];
 ?>
+
+
+<?php
+
+$tecnicos_disponibles = [];
+
+if (in_array($rol_actual, ['administrador', 'super administrador'], true)) {
+
+    $consulta_tecnicos = $pdo->prepare(
+        "SELECT
+            u.id_usuario,
+            u.nombres,
+            COUNT(m.id_mantenimiento) AS total_activos
+         FROM tb_usuarios u
+         INNER JOIN tb_roles r ON r.id_rol = u.id_rol
+         LEFT JOIN tb_mantenimientos m
+            ON m.id_tecnico_asignado = u.id_usuario
+            AND LOWER(TRIM(m.estado)) IN ('enviado', 'aceptado')
+         WHERE LOWER(TRIM(r.rol)) = 'soporte tecnico'
+         GROUP BY u.id_usuario, u.nombres
+         ORDER BY u.nombres ASC"
+    );
+
+    $consulta_tecnicos->execute();
+
+    $tecnicos_disponibles = $consulta_tecnicos->fetchAll(PDO::FETCH_ASSOC);
+}
+?>
