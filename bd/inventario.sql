@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 23-11-2026 a las 00:02:29
+-- Tiempo de generación: 23-11-2026 a las 01:10:35
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -40,7 +40,8 @@ CREATE TABLE `tb_areas` (
 
 INSERT INTO `tb_areas` (`id_area`, `nombre`, `fecha_registro`, `fecha_actualizacion`) VALUES
 (6, 'sistemas', '2026-10-22 17:47:23', '2026-10-22 17:47:23'),
-(7, 'obras', '2026-11-20 19:38:03', '2026-11-20 19:38:03');
+(7, 'obras', '2026-11-20 19:38:03', '2026-11-20 19:38:03'),
+(8, 'contabilidad', '2026-11-22 18:32:37', '2026-11-22 18:32:37');
 
 -- --------------------------------------------------------
 
@@ -62,6 +63,13 @@ CREATE TABLE `tb_componentes` (
   `fecha_registro` datetime DEFAULT current_timestamp(),
   `fecha_actualizacion` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `tb_componentes`
+--
+
+INSERT INTO `tb_componentes` (`id_componente`, `codigo`, `nombre`, `tipo_componente`, `aplica_a`, `marca`, `especificacion`, `stock_actual`, `stock_minimo`, `estado`, `fecha_registro`, `fecha_actualizacion`) VALUES
+(10, 'Comp001', 'monitor', 'Accesorio', 'Equipo', 'HP', '19 pulgadas', 7, 10, 1, '2026-11-22 18:57:24', '2026-11-22 19:07:51');
 
 -- --------------------------------------------------------
 
@@ -103,6 +111,13 @@ CREATE TABLE `tb_equipos` (
   `fecha_actualizacion` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `tb_equipos`
+--
+
+INSERT INTO `tb_equipos` (`id_equipo`, `codigo`, `nombre_dispositivo`, `procesador`, `ram`, `tarjeta_grafica`, `sistema_operativo`, `almacenamiento`, `monitor`, `ip`, `mouse`, `teclado`, `id_area`, `estado`, `observacion`, `fecha_registro`, `fecha_actualizacion`) VALUES
+(3, 'EQ-0001', 'Todhiba', 'intelcorrei3', '8 GB', 'NVIDIA', 'Windows 10', '500 GB SSD', '19 pulgadas', '192.168.198', 'HP', 'Logitech', 7, 'Operativo', 'sdfghj', '2026-11-22 18:55:54', '2026-11-22 18:55:54');
+
 -- --------------------------------------------------------
 
 --
@@ -122,6 +137,13 @@ CREATE TABLE `tb_impresoras` (
   `fecha_registro` datetime DEFAULT current_timestamp(),
   `fecha_actualizacion` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `tb_impresoras`
+--
+
+INSERT INTO `tb_impresoras` (`id_impresora`, `codigo`, `fabricante`, `modelo`, `tipo_impresora`, `tipo_impresion`, `id_area`, `estado`, `observacion`, `fecha_registro`, `fecha_actualizacion`) VALUES
+(8, 'IMP-0001', 'EPSON', 'Smart tank 790', 'Multifuncional', 'Tinta', 7, 'Operativa', 'wertgfdsd', '2026-11-22 18:56:39', '2026-11-22 18:56:39');
 
 -- --------------------------------------------------------
 
@@ -143,6 +165,13 @@ CREATE TABLE `tb_mantenimientos` (
   `fecha_registro` datetime DEFAULT current_timestamp()
 ) ;
 
+--
+-- Volcado de datos para la tabla `tb_mantenimientos`
+--
+
+INSERT INTO `tb_mantenimientos` (`id_mantenimiento`, `id_equipo`, `id_impresora`, `id_usuario`, `id_tecnico_asignado`, `fecha`, `tipo_mantenimiento`, `observacion`, `solucion`, `estado`, `fecha_registro`) VALUES
+(9, 3, NULL, 23, 22, '2026-11-20', 'Correctivo', '<x<xax<axaxa<x<axax', 'sasczscszcszc', 'resuelto', '2026-11-22 19:06:43');
+
 -- --------------------------------------------------------
 
 --
@@ -159,6 +188,13 @@ CREATE TABLE `tb_movimientos_stock` (
   `observacion` text DEFAULT NULL,
   `fecha_registro` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `tb_movimientos_stock`
+--
+
+INSERT INTO `tb_movimientos_stock` (`id_movimiento`, `id_componente`, `id_usuario`, `id_mantenimiento`, `tipo`, `cantidad`, `observacion`, `fecha_registro`) VALUES
+(2, 10, 22, 9, 'salida', 2, NULL, '2026-11-22 19:07:51');
 
 -- --------------------------------------------------------
 
@@ -178,6 +214,17 @@ CREATE TABLE `tb_notificaciones` (
   `fecha_registro` datetime NOT NULL DEFAULT current_timestamp(),
   `fecha_lectura` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `tb_notificaciones`
+--
+
+INSERT INTO `tb_notificaciones` (`id_notificacion`, `id_usuario_destino`, `id_usuario_origen`, `id_mantenimiento`, `tipo`, `titulo`, `mensaje`, `leida`, `fecha_registro`, `fecha_lectura`) VALUES
+(16, 1, 23, 9, 'nuevo_mantenimiento_reportado', 'Nuevo reporte de mantenimiento', 'El personal registró una solicitud que requiere revisión.', 1, '2026-11-22 19:06:43', '2026-11-22 19:07:14'),
+(17, 22, 1, 9, 'nuevo_mantenimiento', 'Nuevo mantenimiento', 'Tienes un nuevo mantenimiento pendiente de atención. Revisa sus detalles.', 0, '2026-11-22 19:07:07', NULL),
+(18, 23, 22, 9, 'mantenimiento_aceptado', 'Solicitud de mantenimiento aceptada', 'Tu solicitud de mantenimiento ha sido aceptada por Soporte técnico y será atendida.', 1, '2026-11-22 19:07:38', '2026-11-22 19:08:57'),
+(19, 23, 22, 9, 'mantenimiento_resuelto', 'Mantenimiento finalizado', 'Tu mantenimiento fue resuelto por Soporte técnico.', 1, '2026-11-22 19:08:00', '2026-11-22 19:08:58'),
+(20, 1, 22, 9, 'mantenimiento_resuelto_admin', 'Mantenimiento finalizado', 'Soporte técnico ha finalizado un mantenimiento. Puedes revisar sus detalles.', 1, '2026-11-22 19:08:00', '2026-11-22 19:08:38');
 
 -- --------------------------------------------------------
 
@@ -242,7 +289,10 @@ CREATE TABLE `tb_usuarios` (
 --
 
 INSERT INTO `tb_usuarios` (`id_usuario`, `nombres`, `email`, `password_user`, `id_rol`, `id_area`, `fecha_registro`, `fecha_actualizacion`, `email_verificado`, `email_verificado_at`) VALUES
-(1, 'jose', 'jr7392281@gmail.com', '$2y$10$9r4f9tOC7D0wOuLKOUNfDOonrEC0I4khbvKL55/9zCeALJoiWFFzi', 1, 6, '2026-09-29 18:05:55', '2026-11-22 17:38:08', 1, NULL);
+(1, 'jose', 'jr7392281@gmail.com', '$2y$10$9r4f9tOC7D0wOuLKOUNfDOonrEC0I4khbvKL55/9zCeALJoiWFFzi', 5, 6, '2026-09-29 18:05:55', '2026-11-22 19:01:06', 1, NULL),
+(21, 'uriel', 'los022573@gmail.com', '$2y$10$F5J6dHz76ws5J4okKEZPTu2Xv0zdQOYj.m/Xpss2uLTZ47rTaS6oy', 4, 6, '2026-11-22 18:39:10', '2026-11-22 18:42:38', 1, '2026-11-22 18:42:38'),
+(22, 'sadasd', 'jotiro949@gmail.com', '$2y$10$LNZBvGj5RCBjcGsLpNGk1eS/cd6J2hIzi.q9/IvQ9F3Mx4acmAvKW', 7, 6, '2026-11-22 18:59:15', '2026-11-22 19:02:04', 1, '2026-11-22 19:02:04'),
+(23, 'weadsd', 'jrr50419@gmail.com', '$2y$10$SNxpJLPkHQVVT3h3vdXaTuqaUZvdUuutYq2vRQa/k59EdPKIkxj4K', 3, 6, '2026-11-22 19:04:31', '2026-11-22 19:05:03', 1, '2026-11-22 19:05:03');
 
 --
 -- Índices para tablas volcadas
@@ -341,31 +391,31 @@ ALTER TABLE `tb_usuarios`
 -- AUTO_INCREMENT de la tabla `tb_areas`
 --
 ALTER TABLE `tb_areas`
-  MODIFY `id_area` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id_area` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT de la tabla `tb_componentes`
 --
 ALTER TABLE `tb_componentes`
-  MODIFY `id_componente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id_componente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de la tabla `tb_email_verification`
 --
 ALTER TABLE `tb_email_verification`
-  MODIFY `id_verificacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_verificacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de la tabla `tb_equipos`
 --
 ALTER TABLE `tb_equipos`
-  MODIFY `id_equipo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_equipo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `tb_impresoras`
 --
 ALTER TABLE `tb_impresoras`
-  MODIFY `id_impresora` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id_impresora` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT de la tabla `tb_mantenimientos`
@@ -377,13 +427,13 @@ ALTER TABLE `tb_mantenimientos`
 -- AUTO_INCREMENT de la tabla `tb_movimientos_stock`
 --
 ALTER TABLE `tb_movimientos_stock`
-  MODIFY `id_movimiento` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_movimiento` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `tb_notificaciones`
 --
 ALTER TABLE `tb_notificaciones`
-  MODIFY `id_notificacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id_notificacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT de la tabla `tb_password_resets`
@@ -401,7 +451,7 @@ ALTER TABLE `tb_roles`
 -- AUTO_INCREMENT de la tabla `tb_usuarios`
 --
 ALTER TABLE `tb_usuarios`
-  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- Restricciones para tablas volcadas
