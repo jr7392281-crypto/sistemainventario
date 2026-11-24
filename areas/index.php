@@ -33,7 +33,7 @@ include('../app/controllers/areas/listado_de_areas.php');
         <div class="container-fluid">
 
             <div class="row">
-                <div class="col-md-8">
+                <div class="col-md-12">
 
                     <div class="card card-outline card-primary">
 
@@ -77,6 +77,7 @@ include('../app/controllers/areas/listado_de_areas.php');
                                     <tr>
                                         <th><center>Nro</center></th>
                                         <th><center>Nombre del área</center></th>
+                                        <th><center>Descripci&oacute;n</center></th>
                                         <th><center>Acciones</center></th>
                                     </tr>
                                 </thead>
@@ -109,6 +110,16 @@ include('../app/controllers/areas/listado_de_areas.php');
                                                 ?>
                                             </td>
 
+                                            <!-- DESCRIPCION DEL AREA -->
+                                            <td>
+                                                <?php
+                                                $descripcion_area = trim((string) ($area_dato['descripcion'] ?? ''));
+                                                echo $descripcion_area !== ''
+                                                    ? htmlspecialchars($descripcion_area, ENT_QUOTES, 'UTF-8')
+                                                    : '<span class="text-muted">Sin descripci&oacute;n</span>';
+                                                ?>
+                                            </td>
+
                                             <!-- ACCIONES -->
                                             <td>
                                                 <center>
@@ -138,6 +149,7 @@ include('../app/controllers/areas/listado_de_areas.php');
                                     <tr>
                                         <th><center>Nro</center></th>
                                         <th><center>Nombre del área</center></th>
+                                        <th><center>Descripci&oacute;n</center></th>
                                         <th><center>Acciones</center></th>
                                     </tr>
                                 </tfoot>
@@ -206,6 +218,15 @@ include('../app/controllers/areas/listado_de_areas.php');
                             maxlength="150"
                             required>
 
+                    </div>
+
+                    <div class="form-group">
+                        <label for="descripcion">Descripci&oacute;n</label>
+                        <textarea id="descripcion" name="descripcion" class="form-control" rows="3"
+                            maxlength="255"
+                            placeholder="Ej.: &Aacute;rea responsable de soporte y atenci&oacute;n a usuarios."
+                            required></textarea>
+                        <small class="form-text text-muted">Describe brevemente las funciones o servicios de esta &aacute;rea.</small>
                     </div>
 
                 </div>
@@ -305,6 +326,20 @@ include('../app/controllers/areas/listado_de_areas.php');
                                 maxlength="150"
                                 required>
 
+                        </div>
+
+                        <div class="form-group">
+                            <label for="descripcionActualizar<?php echo (int) $area_dato['id_area']; ?>">
+                                Descripci&oacute;n
+                            </label>
+                            <textarea id="descripcionActualizar<?php echo (int) $area_dato['id_area']; ?>"
+                                name="descripcion" class="form-control" rows="3" maxlength="255" required><?php
+                                echo htmlspecialchars(
+                                    (string) ($area_dato['descripcion'] ?? ''),
+                                    ENT_QUOTES,
+                                    'UTF-8'
+                                );
+                                ?></textarea>
                         </div>
 
                     </div>
