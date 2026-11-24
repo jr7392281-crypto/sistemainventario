@@ -53,7 +53,9 @@ include('../layout/parte1.php');
                     <form action="../app/controllers/usuarios/delete_administrador.php" method="POST" class="d-inline"
                       onsubmit="return confirm('¿Eliminar esta cuenta de administrador?');">
                       <input type="hidden" name="id_usuario" value="<?php echo (int) $administrador['id_usuario']; ?>">
-                      <button type="submit" class="btn btn-danger btn-sm">
+                      <button type="button" class="btn btn-danger btn-sm"
+                        data-toggle="modal"
+                        data-target="#modalEliminarAdministrador<?php echo (int) $administrador['id_usuario']; ?>">
                         <i class="fas fa-trash"></i> Eliminar
                       </button>
                     </form>
@@ -67,6 +69,43 @@ include('../layout/parte1.php');
     </div>
   </section>
 </div>
+
+<!-- Confirmar eliminacion de administrador -->
+<?php foreach ($administradores_datos as $administrador) {
+  $id_administrador_modal = (int) $administrador['id_usuario'];
+?>
+  <div class="modal fade" id="modalEliminarAdministrador<?php echo $id_administrador_modal; ?>" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-danger">
+          <h5 class="modal-title text-white">
+            <i class="fas fa-exclamation-triangle"></i> Confirmar eliminaci&oacute;n
+          </h5>
+          <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+            <span>&times;</span>
+          </button>
+        </div>
+        <div class="modal-body text-center">
+          <i class="fas fa-user-times text-danger" style="font-size: 55px; margin-bottom: 15px;"></i>
+          <h5>&iquest;Est&aacute;s seguro de eliminar este administrador?</h5>
+          <p class="text-muted mb-0">
+            Administrador: <strong><?php echo htmlspecialchars($administrador['nombres'], ENT_QUOTES, 'UTF-8'); ?></strong>
+          </p>
+          <p class="text-danger mt-2 mb-0">Esta acci&oacute;n no se puede deshacer.</p>
+        </div>
+        <div class="modal-footer justify-content-center">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+          <form action="../app/controllers/usuarios/delete_administrador.php" method="POST">
+            <input type="hidden" name="id_usuario" value="<?php echo $id_administrador_modal; ?>">
+            <button type="submit" class="btn btn-danger">
+              <i class="fas fa-trash"></i> S&iacute;, eliminar
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+<?php } ?>
 
 <!-- Crear administrador: el rol se asigna en el controlador, no desde el formulario. -->
 <div class="modal fade" id="modalCrearAdministrador" tabindex="-1" role="dialog" aria-hidden="true">
