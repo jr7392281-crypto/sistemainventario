@@ -4,6 +4,7 @@
 include('../../config.php');
 require_once __DIR__ . '/../../../layout/sesion.php';
 require_once __DIR__ . '/../../notificaciones.php';
+require_once __DIR__ . '/../../auditoria.php';
 
 // ======================================================
 // VERIFICAR MÉTODO POST
@@ -128,6 +129,7 @@ try {
     // CONFIRMAR TRANSACCIÓN
 
     $pdo->commit();
+    registrar_auditoria($pdo, 'aceptar', 'mantenimiento', (int) $id_mantenimiento, 'El técnico aceptó el mantenimiento #' . (int) $id_mantenimiento . '.');
 
     $_SESSION['mensaje'] = 'El mantenimiento fue aceptado correctamente.';
     $_SESSION['icono'] = 'success';

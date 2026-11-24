@@ -1,7 +1,8 @@
 <?php
 include('../../config.php');
 require_once __DIR__ . '/../../../layout/sesion.php';
-include('../../solo_administrador.php');
+include('../../solo_administrador_o_super_administrador.php');
+require_once __DIR__ . '/../../auditoria.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ' . $URL . '/mantenimiento/');
@@ -50,6 +51,7 @@ try {
     ]);
 
     $pdo->commit();
+    registrar_auditoria($pdo, 'editar', 'mantenimiento', $id_mantenimiento, 'Actualizó la fecha, tipo u observación del mantenimiento.');
     $_SESSION['mensaje'] = 'Se actualizaron los datos del mantenimiento correctamente.';
     $_SESSION['icono'] = 'success';
     header('Location: ' . $URL . '/mantenimiento/');

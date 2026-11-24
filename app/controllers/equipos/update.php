@@ -3,6 +3,7 @@
 
 include("../../config.php");
 include("../../solo_inventario.php");
+require_once __DIR__ . '/../../auditoria.php';
 
 // Recuperar los datos del formulario POST
 $codigo = $_POST['codigo'];
@@ -57,6 +58,8 @@ $sentencia->bindParam('fecha_actualizacion', $fechaHora);
 $sentencia->bindParam('id_equipo', $id_equipo);
 
 if ($sentencia->execute()) {
+
+    registrar_auditoria($pdo, 'editar', 'equipos', (int) $id_equipo, 'Actualizó el equipo ' . $codigo . '.');
 
     if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
 

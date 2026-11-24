@@ -1,6 +1,8 @@
 <?php
 include('../../config.php');
+require_once __DIR__ . '/../../auditoria.php';
 session_start();
+registrar_auditoria($pdo, 'cerrar_sesion', 'autenticacion', null, 'Cerró sesión.');
 $_SESSION = [];
 
 if (ini_get('session.use_cookies')) {

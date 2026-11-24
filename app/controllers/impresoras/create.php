@@ -1,6 +1,7 @@
 <?php
 include('../../config.php');
 include('../../solo_inventario.php');
+require_once __DIR__ . '/../../auditoria.php';
 
 $codigo = $_POST['codigo'];
 $fabricante = $_POST['fabricante'];
@@ -30,6 +31,8 @@ $sentencia->bindParam(':estado', $estado);
 $sentencia->bindParam(':observacion', $observacion);
 
 if ($sentencia->execute()) {
+    $id_impresora = (int) $pdo->lastInsertId();
+    registrar_auditoria($pdo, 'crear', 'impresoras', $id_impresora, 'Registró la impresora ' . $codigo . '.');
     if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
     $_SESSION['mensaje'] = 'Se registró la impresora correctamente';
     $_SESSION['icono'] = 'success';

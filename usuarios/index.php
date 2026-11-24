@@ -2,7 +2,7 @@
 
 include('../app/config.php');
 include('../layout/sesion.php');
-include('../app/solo_administrador.php');
+include('../app/solo_administrador_o_super_administrador.php');
 include('../layout/parte1.php');
 include('../app/controllers/usuarios/listado_de_usuarios.php');
 include('../app/controllers/roles/listado_de_roles.php');
@@ -439,8 +439,8 @@ if (isset($_SESSION['mensaje'])) {
 
                                   <?php foreach ($roles_datos as $roles_dato) {
 
-                                    $nombre_rol_opcion = $roles_dato['rol'];
-                                    if ($rol_sesion_normalizado === 'administrador' && strtolower(trim($nombre_rol_opcion)) === 'super administrador') {
+                                    $nombre_rol_opcion = strtolower(trim($roles_dato['rol']));
+                                    if (in_array($nombre_rol_opcion, ['administrador', 'super administrador'], true)) {
                                       continue;
                                     }
 
@@ -786,7 +786,7 @@ if (isset($_SESSION['mensaje'])) {
               <option value="">Seleccione un rol</option>
 
               <?php foreach ($roles_datos as $roles_dato) {
-                if ($rol_sesion_normalizado === 'administrador' && strtolower(trim($roles_dato['rol'])) === 'super administrador') {
+                if (in_array(strtolower(trim($roles_dato['rol'])), ['administrador', 'super administrador'], true)) {
                   continue;
                 }
               ?>
@@ -846,55 +846,7 @@ if (isset($_SESSION['mensaje'])) {
 
           </div>
 
-          <hr>
-
-          <div class="row">
-
-            <div class="col-md-6">
-
-              <div class="form-group">
-
-                <label>Contraseña</label>
-
-                <input type="password"
-                  name="password_user"
-                  id="password_user"
-                  class="form-control"
-                  placeholder="Ingrese una contraseña"
-                  minlength="8"
-                  required>
-
-              </div>
-
-            </div>
-
-            <div class="col-md-6">
-
-              <div class="form-group">
-
-                <label>Repita su contraseña</label>
-
-                <input type="password"
-                  name="password_repeat"
-                  id="password_repeat"
-                  class="form-control"
-                  placeholder="Repita la contraseña"
-                  minlength="8"
-                  required>
-
-              </div>
-
-            </div>
-
-          </div>
-
-          <div class="alert alert-secondary mb-0">
-
-            <i class="fas fa-shield-alt"></i>
-
-            La contraseña debe contener como mínimo 8 caracteres.
-
-          </div>
+          <div class="alert alert-info mb-0">Se generará una clave temporal y se enviará al correo junto con el enlace de verificación. Al iniciar sesión, el usuario deberá crear su propia contraseña.</div>
 
         </div>
 
@@ -1042,32 +994,6 @@ if (isset($_SESSION['mensaje'])) {
       }
 
       actualizarRolRegistro();
-
-    });
-
-
-    // ==========================================
-    // VALIDAR CONTRASEÑAS DE REGISTRO
-    // ==========================================
-
-    $('#modalRegistrarUsuario form').on('submit', function(event) {
-
-      const password = this.querySelector('[name="password_user"]').value;
-
-      const passwordRepeat = this.querySelector('[name="password_repeat"]').value;
-
-
-      if (password !== passwordRepeat) {
-
-        event.preventDefault();
-
-        Swal.fire({
-          icon: 'error',
-          title: 'Contraseñas diferentes',
-          text: 'Las contraseñas ingresadas no coinciden.'
-        });
-
-      }
 
     });
 

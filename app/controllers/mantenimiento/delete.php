@@ -1,6 +1,7 @@
 <?php
 include('../../config.php');
-include('../../solo_administrador.php');
+include('../../solo_administrador_o_super_administrador.php');
+require_once __DIR__ . '/../../auditoria.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ' . $URL . '/mantenimiento/');
@@ -22,6 +23,10 @@ try {
          WHERE id_mantenimiento = :id_mantenimiento'
     );
     $sentencia->execute([':id_mantenimiento' => $id_mantenimiento]);
+
+    if ($sentencia->rowCount() > 0) {
+        registrar_auditoria($pdo, 'eliminar', 'mantenimiento', (int) $id_mantenimiento, 'Eliminó el mantenimiento #' . (int) $id_mantenimiento . '.');
+    }
 
     $_SESSION['mensaje'] = $sentencia->rowCount() > 0
         ? 'Se eliminó el mantenimiento correctamente.'

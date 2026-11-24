@@ -4,6 +4,7 @@
 require_once __DIR__ . '/../../config.php';
 require_once __DIR__ . '/../../../layout/sesion.php';
 require_once __DIR__ . '/../../notificaciones.php';
+require_once __DIR__ . '/../../auditoria.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ' . $URL . '/mantenimiento/');
@@ -120,6 +121,7 @@ try {
     );
 
     $pdo->commit();
+    registrar_auditoria($pdo, 'asignar_tecnico', 'mantenimiento', (int) $id_mantenimiento, 'Asignó el mantenimiento al técnico ' . $tecnico['nombres'] . '.');
 
     $_SESSION['mensaje'] =
         'Mantenimiento asignado correctamente a ' . $tecnico['nombres'];

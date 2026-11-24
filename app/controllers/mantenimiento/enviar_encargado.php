@@ -8,6 +8,7 @@
 require_once __DIR__ . '/../../config.php';
 require_once __DIR__ . '/../../../layout/sesion.php';
 require_once __DIR__ . '/../../notificaciones.php';
+require_once __DIR__ . '/../../auditoria.php';
 
 
 // ======================================================
@@ -141,6 +142,7 @@ try {
     // --------------------------------------------------
 
     $pdo->commit();
+    registrar_auditoria($pdo, 'enviar_a_soporte', 'mantenimiento', (int) $id_mantenimiento, 'Envió el mantenimiento a soporte técnico para su atención.');
 
     $_SESSION['mensaje'] = 'La solicitud fue enviada a Soporte técnico correctamente.';
     $_SESSION['icono'] = 'success';

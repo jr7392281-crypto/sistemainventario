@@ -1,6 +1,7 @@
 <?php
 include("../../config.php");
-include("../../solo_administrador.php");
+include("../../solo_super_administrador.php");
+require_once __DIR__ . '/../../auditoria.php';
 
 $id_rol = $_POST['id_rol'];
 $rol = $_POST['rol'];
@@ -14,6 +15,7 @@ $sentencia->bindParam('fecha_actualizacion', $fechaHora);
 $sentencia->bindParam('id_rol', $id_rol);
 
 if ($sentencia->execute()) {
+    registrar_auditoria($pdo, 'editar', 'roles', (int) $id_rol, 'Actualizó el nombre del rol a ' . $rol . '.');
     if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
     $_SESSION['mensaje'] = "Se actualizo el rol de forma correcta";
     $_SESSION['icono'] = "success";

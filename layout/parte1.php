@@ -283,9 +283,9 @@
             <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
 
-            <?php if (in_array($rol_sesion, ['administrador', 'super administrador'], true)) { ?>
-              <li class="nav-item">
-                <a href="#" class="nav-link active">
+            <?php if ($rol_sesion === 'administrador' || $rol_sesion === 'super administrador') { ?>
+              <li class="nav-item" data-menu-key="usuarios">
+                <a href="#" class="nav-link">
                   <i class="nav-icon fas fa-users"></i>
                   <p>
                     Usuarios
@@ -302,34 +302,31 @@
                 </ul>
               </li>
 
-              <!--roles-->
-              <!-- <li class="nav-item">
-                <a href="#" class="nav-link active">
-                  <i class="nav-icon fas fa-edit"></i>
-                  <p>
-                    Roles
-                    <i class="right fas fa-angle-left"></i>
-                  </p>
-                </a>
-                <ul class="nav nav-treeview">
-                  <li class="nav-item">
-                    <a href="/roles" class="nav-link">
-                      <i class="far fa-circle nav-icon"></i>
-                      <p>Listado de Roles</p>
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a href="/roles/create.php" class="nav-link">
-                      <i class="far fa-circle nav-icon"></i>
-                      <p>Creación de Roles</p>
-                    </a>
-                  </li>
-                </ul>
-              </li> -->
-              <!-- Fin de Roles -->
+              <?php if ($rol_sesion === 'super administrador') { ?>
+                <li class="nav-item" data-menu-key="panel-administrativo">
+                  <a href="#" class="nav-link">
+                    <i class="nav-icon fas fa-user-shield"></i>
+                    <p>Panel administrativo <i class="right fas fa-angle-left"></i></p>
+                  </a>
+                  <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                      <a href="<?php echo $URL; ?>/usuarios/administradores.php" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Administradores</p>
+                      </a>
+                    </li>
+                    <li class="nav-item">
+                      <a href="<?php echo $URL; ?>/auditoria/" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Auditoría</p>
+                      </a>
+                    </li>
+                  </ul>
+                </li>
+              <?php } ?>
               <!--areas-->
-              <li class="nav-item">
-                <a href="#" class="nav-link active">
+              <li class="nav-item" data-menu-key="areas">
+                <a href="#" class="nav-link">
                   <i class="nav-icon fas fa-map-marker-alt"></i>
                   <p>
                     Areas
@@ -349,8 +346,8 @@
             <?php } ?>
 
             <!--equipos-->
-            <li class="nav-item">
-              <a href="#" class="nav-link active">
+            <li class="nav-item" data-menu-key="equipos">
+              <a href="#" class="nav-link">
                 <i class="nav-icon fas fa-desktop"></i>
                 <p>
                   Equipos
@@ -376,8 +373,8 @@
             </li>
             <!-- Fin de Equipos -->
             <!--impresoras-->
-            <li class="nav-item">
-              <a href="#" class="nav-link active">
+            <li class="nav-item" data-menu-key="impresoras">
+              <a href="#" class="nav-link">
                 <i class="nav-icon fas fa-print"></i>
                 <p>
                   Impresoras
@@ -404,8 +401,8 @@
             <!-- Fin de Impresoras -->
 
             <?php if (in_array($rol_sesion, ['administrador', 'super administrador', 'encargado de inventario', 'soporte tecnico'], true)) { ?>
-              <li class="nav-item">
-                <a href="#" class="nav-link active">
+              <li class="nav-item" data-menu-key="componentes">
+                <a href="#" class="nav-link">
                   <i class="nav-icon fas fa-boxes"></i>
                   <p>
                     Componentes
@@ -438,9 +435,9 @@
             <?php } ?>
 
             <!--mantenimiento-->
-            <?php if (in_array(strtolower(trim((string) $rol_sesion)), ['administrador', 'super administrador', 'personal', 'soporte tecnico'], true)) { ?>
-            <li class="nav-item">
-              <a href="#" class="nav-link active">
+            <?php if (in_array($rol_sesion, ['administrador', 'super administrador', 'personal', 'soporte tecnico'], true)) { ?>
+            <li class="nav-item" data-menu-key="mantenimiento">
+              <a href="#" class="nav-link">
                 <i class="nav-icon fas fa-tools"></i>
                 <p>
                   Mantenimiento
@@ -457,7 +454,7 @@
                     </p>
                   </a>
                 </li>
-                <?php if (strtolower(trim((string) $rol_sesion)) === 'personal') { ?>
+                <?php if ($rol_sesion === 'personal') { ?>
                 <li class="nav-item">
                   <a href="<?php echo $URL; ?>/mantenimiento/create.php" class="nav-link"
                     style="display: flex; align-items: center;">

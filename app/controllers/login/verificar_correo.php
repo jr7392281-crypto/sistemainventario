@@ -1,5 +1,6 @@
 <?php
 include('../../config.php');
+require_once __DIR__ . '/../../auditoria.php';
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
@@ -46,9 +47,16 @@ try {
     );
     $eliminar_token->execute([':id_usuario' => (int) $verificacion['id_usuario']]);
     $pdo->commit();
+    registrar_auditoria(
+        $pdo,
+        'verificar_correo',
+        'usuarios',
+        (int) $verificacion['id_usuario'],
+        'Verificó su correo electrónico.',
+        (int) $verificacion['id_usuario']
+    );
 
-    $_SESSION['mensaje'] = 'Correo verificado correctamente. Ya puedes iniciar sesión.';
-    $_SESSION['icono'] = 'success';
+    unset($_SESSION['mensaje'], $_SESSION['icono']);
 } catch (Throwable $e) {
     if ($pdo->inTransaction()) {
         $pdo->rollBack();

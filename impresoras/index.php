@@ -47,12 +47,12 @@ include('../app/controllers/impresoras/listado_impresoras.php');
                                     <thead class="thead-light">
                                         <tr>
                                             <th class="text-center" style="width:55px;">Nro</th>
-                                            <th style="min-width:120px;">Código</th>
-                                            <th style="min-width:200px;">Impresora</th>
-                                            <th style="min-width:190px;">Tipo</th>
-                                            <th class="text-center" style="min-width:120px;">Área</th>
-                                            <th class="text-center" style="min-width:130px;">Estado</th>
-                                            <th class="text-center" style="min-width:190px;">Acciones</th>
+                                            <th>Código</th>
+                                            <th>Impresora</th>
+                                            <th>Tipo</th>
+                                            <th class="text-center">Área</th>
+                                            <th class="text-center">Estado</th>
+                                            <th class="text-center">Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -218,7 +218,7 @@ include('../app/controllers/impresoras/listado_impresoras.php');
                     "previous": "Anterior"
                 }
             },
-            "responsive": false, "lengthChange": true, "autoWidth": false, "scrollX": true,
+            "responsive": true, "lengthChange": true, "autoWidth": false,
             buttons: [{
                 extend: 'collection',
                 text: 'Reportes',

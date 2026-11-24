@@ -2,6 +2,7 @@
 include('../../config.php');
 require_once __DIR__ . '/../../../layout/sesion.php';
 require_once '../../componentes_stock.php';
+require_once __DIR__ . '/../../auditoria.php';
 
 if (strtolower(trim((string) ($rol_sesion ?? ''))) !== 'soporte tecnico') {
     $_SESSION['mensaje'] = 'Solo Soporte técnico puede registrar componentes usados en un mantenimiento.';
@@ -77,6 +78,14 @@ try {
         $observacion
     );
     $pdo->commit();
+
+    registrar_auditoria(
+        $pdo,
+        'salida_stock',
+        'componentes',
+        (int) $idComponente,
+        'Registró el uso de ' . (int) $cantidad . ' unidad(es) del componente #' . (int) $idComponente . ' en el mantenimiento #' . (int) $idMantenimiento . '.'
+    );
 
     $_SESSION['mensaje'] = 'Se registró el componente usado y se actualizó el stock.';
     $_SESSION['icono'] = 'success';

@@ -2,6 +2,7 @@
 include('../../config.php');
 require_once __DIR__ . '/../../../layout/sesion.php';
 require_once __DIR__ . '/../../notificaciones.php';
+require_once __DIR__ . '/../../auditoria.php';
 
 // Verificar que el formulario se haya enviado mediante POST.
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -99,6 +100,7 @@ try {
     );
 
     $pdo->commit();
+    registrar_auditoria($pdo, 'crear', 'mantenimiento', $id_mantenimiento, 'Registró una solicitud de mantenimiento ' . $tipo_mantenimiento . '.');
 
     // Mensaje de confirmación.
     $_SESSION['mensaje'] = 'Se registró el mantenimiento correctamente.';

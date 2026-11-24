@@ -1,6 +1,7 @@
 <?php
 include('../../config.php');
 include('../../solo_inventario.php');
+require_once __DIR__ . '/../../auditoria.php';
 
 $id_impresora = $_POST['id_impresora'];
 $fabricante = $_POST['fabricante'];
@@ -32,6 +33,8 @@ $sentencia->bindParam(':observacion', $observacion);
 $sentencia->bindParam(':fecha_actualizacion', $fechaHora);
 $sentencia->bindParam(':id_impresora', $id_impresora);
 $sentencia->execute();
+
+registrar_auditoria($pdo, 'editar', 'impresoras', (int) $id_impresora, 'Actualizó la impresora #' . (int) $id_impresora . '.');
 
 if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
 $_SESSION['mensaje'] = 'Se actualizó la impresora correctamente';

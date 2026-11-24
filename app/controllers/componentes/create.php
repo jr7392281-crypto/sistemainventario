@@ -2,6 +2,7 @@
 include('../../config.php');
 require_once __DIR__ . '/../../../layout/sesion.php';
 require_once __DIR__ . '/../../solo_inventario.php';
+require_once __DIR__ . '/../../auditoria.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ' . $URL . '/componentes/');
@@ -57,7 +58,9 @@ try {
         ':stock_minimo' => $stockMinimo,
     ]);
 
+    $id_componente = (int) $pdo->lastInsertId();
     $pdo->commit();
+    registrar_auditoria($pdo, 'crear', 'componentes', $id_componente, 'Registró el componente ' . $nombre . ' (' . $codigo . ') con stock inicial de ' . $stockActual . '.');
     $_SESSION['mensaje'] = 'Se registró el componente correctamente.';
     $_SESSION['icono'] = 'success';
     header('Location: ' . $URL . '/componentes/');

@@ -8,6 +8,9 @@ if (empty($_SESSION['sesion_email'])) {
     exit;
 }
 
+require_once __DIR__ . '/bloquear_cambio_password.php';
+exigir_cambio_password_si_corresponde($pdo, $URL);
+
 $consulta_rol = $pdo->prepare(
     'SELECT r.rol
      FROM tb_usuarios AS u

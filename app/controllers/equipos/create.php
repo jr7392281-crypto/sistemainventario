@@ -3,6 +3,7 @@
 
 include('../../config.php');
 include('../../solo_inventario.php');
+require_once __DIR__ . '/../../auditoria.php';
 
 $codigo = $_POST['codigo'];
 $nombre_dispositivo = $_POST['nombre_dispositivo'];
@@ -71,6 +72,9 @@ $sentencia->bindParam('fecha_registro', $fechaHora);
 $sentencia->bindParam('fecha_actualizacion', $fechaHora);
 
 if ($sentencia->execute()) {
+
+    $id_equipo = (int) $pdo->lastInsertId();
+    registrar_auditoria($pdo, 'crear', 'equipos', $id_equipo, 'Registró el equipo ' . $codigo . '.');
 
     if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
 

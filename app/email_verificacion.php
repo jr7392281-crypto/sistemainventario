@@ -48,17 +48,39 @@ function enviar_enlace_verificacion(PDO $pdo, array $usuario, string $URL): void
         $correo->setFrom($correo_config['username'], 'Sistema de Inventario');
         $correo->addAddress($usuario['email'], $usuario['nombres']);
         $correo->isHTML(true);
-        $correo->Subject = 'Verifica tu correo - Sistema de Inventario';
+        $tiene_clave_temporal = isset($usuario['clave_temporal']) && $usuario['clave_temporal'] !== '';
+        $correo->Subject = $tiene_clave_temporal
+            ? 'Acceso a tu cuenta - Sistema de Inventario'
+            : 'Verifica tu correo - Sistema de Inventario';
 
         $enlace = $URL . '/app/controllers/login/verificar_correo.php?token=' . urlencode($token);
         $nombre = htmlspecialchars((string) $usuario['nombres'], ENT_QUOTES, 'UTF-8');
         $enlace_html = htmlspecialchars($enlace, ENT_QUOTES, 'UTF-8');
 
-        $correo->Body = '<p>Hola ' . $nombre . ',</p>'
-            . '<p>Para confirmar tu correo, abre este enlace:</p>'
-            . '<p><a href="' . $enlace_html . '">Verificar mi correo</a></p>'
-            . '<p>El enlace vence en 24 horas y solo puede utilizarse una vez.</p>';
-        $correo->AltBody = "Abre este enlace para verificar tu correo. Vence en 24 horas:\n" . $enlace;
+        $correo->Body = '<p>Hola ' . $nombre . ',</p>';
+        $correo->AltBody = "Hola " . (string) $usuario['nombres'] . ",\n\n";
+
+        if ($tiene_clave_temporal) {
+            $clave_temporal_html = htmlspecialchars((string) $usuario['clave_temporal'], ENT_QUOTES, 'UTF-8');
+            $correo->Body .= '<p>Se creó tu cuenta en el Sistema de Inventario.</p>'
+                . '<p><strong>Usuario:</strong> ' . htmlspecialchars((string) $usuario['email'], ENT_QUOTES, 'UTF-8') . '<br>'
+                . '<strong>Clave temporal:</strong> ' . $clave_temporal_html . '</p>'
+                . '<p>Confirma tu correo y luego inicia sesión desde este enlace:</p>'
+                . '<p><a href="' . $enlace_html . '">Ingresar al sistema</a></p>'
+                . '<p>Después inicia sesión con la clave temporal. El sistema te pedirá crear una contraseña propia antes de continuar.</p>'
+                . '<p>El enlace vence en 24 horas y solo puede utilizarse una vez. No compartas estas credenciales.</p>';
+            $correo->AltBody .= "Se creó tu cuenta en el Sistema de Inventario.\n"
+                . 'Usuario: ' . (string) $usuario['email'] . "\n"
+                . 'Clave temporal: ' . (string) $usuario['clave_temporal'] . "\n\n"
+                . "Confirma tu correo e ingresa al sistema desde este enlace:\n" . $enlace . "\n\n"
+                . "Después inicia sesión con la clave temporal y crea una contraseña propia antes de continuar.\n"
+                . "El enlace vence en 24 horas y solo puede utilizarse una vez. No compartas estas credenciales.";
+        } else {
+            $correo->Body .= '<p>Confirma tu correo e ingresa al sistema desde este enlace:</p>'
+                . '<p><a href="' . $enlace_html . '">Ingresar al sistema</a></p>'
+                . '<p>El enlace vence en 24 horas y solo puede utilizarse una vez.</p>';
+            $correo->AltBody .= "Ingresa al sistema desde este enlace para verificar tu correo. Vence en 24 horas:\n" . $enlace;
+        }
         $correo->send();
     } catch (Throwable $e) {
         try {

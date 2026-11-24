@@ -4,6 +4,7 @@
 include('../../config.php');
 require_once __DIR__ . '/../../../layout/sesion.php';
 require_once __DIR__ . '/../../notificaciones.php';
+require_once __DIR__ . '/../../auditoria.php';
 
 // ======================================================
 // VERIFICAR MÉTODO POST
@@ -142,6 +143,7 @@ try {
     // CONFIRMAR TRANSACCIÓN
 
     $pdo->commit();
+    registrar_auditoria($pdo, 'rechazar', 'mantenimiento', (int) $id_mantenimiento, 'El técnico rechazó el mantenimiento y lo dejó disponible para reasignación.');
 
     $_SESSION['mensaje'] = 'El mantenimiento fue rechazado y liberado para una nueva asignación.';
     $_SESSION['icono'] = 'success';

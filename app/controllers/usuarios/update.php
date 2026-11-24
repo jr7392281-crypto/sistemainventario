@@ -1,7 +1,8 @@
 
 <?php
 include('../../config.php');
-include('../../solo_administrador.php');
+include('../../solo_administrador_o_super_administrador.php');
+require_once __DIR__ . '/../../auditoria.php';
 
 if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
 
@@ -27,17 +28,13 @@ $rol_usuario_actualizado = strtolower(trim((string) ($usuario_actual['rol'] ?? '
 $consulta_rol_nuevo = $pdo->prepare('SELECT rol FROM tb_roles WHERE id_rol = :id_rol LIMIT 1');
 $consulta_rol_nuevo->execute([':id_rol' => $rol]);
 $rol_nuevo = strtolower(trim((string) $consulta_rol_nuevo->fetchColumn()));
-$rol_actual = strtolower(trim((string) $rol_sesion));
-
 if (
     $rol_usuario_actualizado === '' ||
     $rol_nuevo === '' ||
-    ($rol_actual === 'administrador' && (
-        $rol_usuario_actualizado === 'super administrador' ||
-        $rol_nuevo === 'super administrador'
-    ))
+    in_array($rol_usuario_actualizado, ['administrador', 'super administrador'], true) ||
+    in_array($rol_nuevo, ['administrador', 'super administrador'], true)
 ) {
-    $_SESSION['mensaje'] = 'No tienes permiso para modificar ese usuario o asignar ese rol.';
+    $_SESSION['mensaje'] = 'No tienes permiso para modificar esa cuenta o asignar ese rol desde este listado.';
     $_SESSION['icono'] = 'error';
     header('Location: ' . $URL . '/usuarios/');
     exit;
@@ -98,6 +95,7 @@ if ($password_user !== '') {
 
 try {
     $sentencia->execute();
+    registrar_auditoria($pdo, 'editar', 'usuarios', $id_usuario, 'Actualizó la cuenta de ' . $nombres . '; rol asignado: ' . $rol_nuevo . '.');
 
     if ($cambio_email) {
         try {

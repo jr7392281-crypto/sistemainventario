@@ -56,15 +56,15 @@ include('../app/controllers/equipos/listado_de_equipos.php');
                                     <thead class="thead-light">
                                         <tr>
                                             <th class="text-center" style="width:55px;">Nro</th>
-                                            <th style="min-width:120px;">Código</th>
-                                            <th style="min-width:190px;">Dispositivo</th>
-                                            <th style="min-width:170px;">Procesador</th>
-                                            <th class="text-center" style="min-width:80px;">RAM</th>
-                                            <th style="min-width:150px;">Sistema operativo</th>
-                                            <th style="min-width:120px;">Almacenamiento</th>
-                                            <th class="text-center" style="min-width:120px;">Estado</th>
-                                            <th class="text-center" style="min-width:80px;">Área</th>
-                                            <th class="text-center" style="min-width:170px;">Acciones</th>
+                                            <th>Código</th>
+                                            <th>Dispositivo</th>
+                                            <th>Procesador</th>
+                                            <th class="text-center">RAM</th>
+                                            <th>Sistema operativo</th>
+                                            <th>Almacenamiento</th>
+                                            <th class="text-center">Estado</th>
+                                            <th class="text-center">Área</th>
+                                            <th class="text-center">Acciones</th>
                                         </tr>
                                     </thead>
 
@@ -384,20 +384,10 @@ include('../app/controllers/equipos/listado_de_equipos.php');
                 }
             },
 
-            /*
-             * Se desactiva Responsive porque estaba provocando
-             * que las columnas que no entraban aparecieran debajo
-             * de la fila, haciendo que la tabla se vea desordenada.
-             *
-             * Ahora solamente mostramos las columnas importantes
-             * en el listado y el resto se consulta desde "Ver".
-             */
-            "responsive": false,
+            "responsive": true,
 
             "lengthChange": true,
             "autoWidth": false,
-
-            "scrollX": true,
 
             buttons: [
 

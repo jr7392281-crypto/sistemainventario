@@ -1,7 +1,7 @@
 <?php
 include('../app/config.php');
 include('../layout/sesion.php');
-include('../app/solo_administrador.php');
+include('../app/solo_super_administrador.php');
 include('../layout/parte1.php');
 include('../app/controllers/roles/update_roles.php');
 ?>

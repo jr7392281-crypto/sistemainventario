@@ -7,6 +7,7 @@ $sql_usuarios = "SELECT us.id_usuario,
 FROM tb_usuarios us
 INNER JOIN tb_roles rol ON us.id_rol = rol.id_rol
 LEFT JOIN tb_areas a ON us.id_area = a.id_area
+WHERE LOWER(TRIM(rol.rol)) NOT IN ('administrador', 'super administrador')
 ORDER BY us.fecha_registro ASC, us.id_usuario ASC";
 $query_usuarios = $pdo->prepare($sql_usuarios);
 $query_usuarios->execute();

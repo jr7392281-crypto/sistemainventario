@@ -4,6 +4,7 @@
 include('../../config.php');
 require_once __DIR__ . '/../../../layout/sesion.php';
 require_once __DIR__ . '/../../notificaciones.php';
+require_once __DIR__ . '/../../auditoria.php';
 
 // ======================================================
 // VERIFICAR MÉTODO POST
@@ -146,6 +147,7 @@ try {
     // ==================================================
 
     $pdo->commit();
+    registrar_auditoria($pdo, 'resolver', 'mantenimiento', (int) $id_mantenimiento, 'Soporte técnico marcó el mantenimiento como resuelto.');
 
     $_SESSION['mensaje'] = 'El mantenimiento fue finalizado correctamente. Se notificó al personal y a los administradores.';
     $_SESSION['icono'] = 'success';

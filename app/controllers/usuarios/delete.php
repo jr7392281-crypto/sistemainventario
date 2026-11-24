@@ -1,6 +1,7 @@
 <?php
 include('../../config.php');
-include('../../solo_administrador.php');
+include('../../solo_administrador_o_super_administrador.php');
+require_once __DIR__ . '/../../auditoria.php';
 
 $id_usuario = (int) ($_POST['id_usuario'] ?? 0);
 
@@ -18,7 +19,7 @@ $consulta_actual->execute([':email' => $_SESSION['sesion_email']]);
 $id_usuario_actual = (int) $consulta_actual->fetchColumn();
 
 $consulta_objetivo = $pdo->prepare(
-    'SELECT us.id_usuario, us.email, rol.rol
+    'SELECT us.id_usuario, us.email, us.nombres, rol.rol
      FROM tb_usuarios us
      INNER JOIN tb_roles rol ON rol.id_rol = us.id_rol
      WHERE us.id_usuario = :id_usuario
@@ -44,8 +45,8 @@ if ($id_usuario_actual === $id_usuario) {
     exit;
 }
 
-if ($rol_actual === 'administrador' && $rol_objetivo === 'super administrador') {
-    $_SESSION['mensaje'] = 'Un administrador no puede eliminar a un super administrador.';
+if (in_array($rol_objetivo, ['administrador', 'super administrador'], true)) {
+    $_SESSION['mensaje'] = 'Las cuentas administrativas no se eliminan desde el listado general.';
     $_SESSION['icono'] = 'error';
     header('Location: ' . $URL . '/usuarios/');
     exit;
@@ -56,6 +57,7 @@ try {
     $ejecucion_correcta = $sentencia->execute([':id_usuario' => $id_usuario]);
 
     if ($ejecucion_correcta && $sentencia->rowCount() > 0) {
+        registrar_auditoria($pdo, 'eliminar', 'usuarios', $id_usuario, 'Eliminó la cuenta de ' . $usuario_objetivo['nombres'] . '.');
         $_SESSION['mensaje'] = 'Se elimino el usuario correctamente.';
         $_SESSION['icono'] = 'success';
     } else {

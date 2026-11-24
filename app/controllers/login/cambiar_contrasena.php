@@ -1,5 +1,6 @@
 <?php
 include('../../config.php');
+require_once __DIR__ . '/../../auditoria.php';
 session_start();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -47,10 +48,15 @@ try {
     }
 
     $actualizar_password = $pdo->prepare(
-        'UPDATE tb_usuarios SET password_user = :password_user WHERE id_usuario = :id_usuario'
+        'UPDATE tb_usuarios
+         SET password_user = :password_user,
+             debe_cambiar_password = 0,
+             fecha_actualizacion = :fecha_actualizacion
+         WHERE id_usuario = :id_usuario'
     );
     $actualizar_password->execute([
         ':password_user' => password_hash($password_user, PASSWORD_DEFAULT),
+        ':fecha_actualizacion' => $fechaHora,
         ':id_usuario' => $reset['id_usuario'],
     ]);
 
@@ -61,6 +67,14 @@ try {
     );
     $marcar_tokens->execute([':id_usuario' => $reset['id_usuario']]);
     $pdo->commit();
+    registrar_auditoria(
+        $pdo,
+        'restablecer_contrasena',
+        'autenticacion',
+        (int) $reset['id_usuario'],
+        'Restableció la contraseña mediante el enlace de recuperación.',
+        (int) $reset['id_usuario']
+    );
 
     $_SESSION['mensaje'] = 'La contraseña se cambió correctamente. Ya puedes iniciar sesión.';
     $_SESSION['icono'] = 'success';
